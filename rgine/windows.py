@@ -1,8 +1,11 @@
+import cProfile
+
+import pygame
+
 from common import *
 from surface_buffer import *
 import event
-import pygame
-import cProfile
+
 p = cProfile.Profile()
 __author__ = "Charles-Jianye Chen"
 
@@ -374,7 +377,8 @@ class _windowBase(object):
 			def DispatchMessage(self, _RgineEvent):
 				for hWnd, uMsg, surface, pos in super(_WindowsManager, self).DispatchMessage(_RgineEvent):
 					yield hWnd, uMsg, surface, \
-					      (self._windows[hWnd].getPos()[0]-self._pos[0], self._windows[hWnd].getPos()[1]-self._pos[1])
+					      (self._windows[hWnd].getPos()[0] - self._pos[0],
+					       self._windows[hWnd].getPos()[1] - self._pos[1])
 
 			def MoveObject(self, x, y):
 				self._pos[0] += x
@@ -838,8 +842,8 @@ class _windowMsgbox(_windowFramed):
 
 class _windowEditbox(_windowBase):
 	def __init__(self, wsize, winbk=None, *args):
-		super(_windowEditbox, self).__init__(wsize, winbk, *args)
-		
+		super(_windowEditbox, self).__init__(wsize, winbk)
+
 	def callback(self, RgineEvent, uMsg):
 		pass
 
@@ -955,10 +959,10 @@ def _main():
 		fps += 1
 		if time.clock() - t >= 20:
 			break
-			print(fps, time.clock()-t)
-			print("Current Topmost: %d"%(wm._current["topmost"]-10))
-			fps = 0
-			t = time.clock()
+		# print(fps, time.clock()-t)
+		# print("Current Topmost: %d"%(wm._current["topmost"]-10))
+		# fps = 0
+		# t = time.clock()
 	wm.Release()
 	pygame.quit()
 

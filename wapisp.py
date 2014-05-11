@@ -3,7 +3,6 @@
 WindowsAPIs Support Package (WAPISP)/(WSP)
 
 '''
-import ctypes
 user32 = ctypes.windll.LoadLibrary("user32.dll")
 kernel32 = ctypes.windll.LoadLibrary("kernel32.dll")
 shell32 = ctypes.windll.LoadLibrary("shell32.dll")
@@ -11,9 +10,6 @@ comdlg32 = ctypes.windll.LoadLibrary("comdlg32.dll")
 gdi32 = ctypes.windll.LoadLibrary("gdi32.dll")
 from ctypes.wintypes import *
 import struct
-import pygame
-import time
-import platform
 
 
 #define sys
@@ -176,10 +172,10 @@ class CHOOSECOLOR(ctypes.Structure):
 ##                ]
 ##    
 def COLORREF(r, g, b):
-    r = r & 0xFF
-    g = g & 0xFF
-    b = b & 0xFF
-    return (b << 16) | (g << 8) | r
+	r &= 0xFF
+	g &= 0xFF
+	b &= 0xFF
+	return (b << 16) | (g << 8) | r
 
 def RGB(COLORREF_VALUE):
     color = str(bin(COLORREF_VALUE))[2:]
@@ -193,7 +189,8 @@ def RGB(COLORREF_VALUE):
     b="".join(output[0])
     g="".join(output[1])
     r="".join(output[2])
-    return (int(r,2),int(g,2),int(b,2))
+    return int(r, 2), int(g, 2), int(b, 2)
+
 
 CC_ANYCOLOR     =   0x00000100
 CC_ENABLEHOOK   =   0x00000010
@@ -298,24 +295,27 @@ def SetWindowPos(handle,HWNDFLAG,x,y,cx,cy,flag):
     
 def PeekMessage(handle,ifremove=0,IF_EXACT_MOUS=True):  #NOT PASSING EXIT MESSAGE   #DO NOT USE IF POSSIBLE
     umsg = struct.pack("@5L2l",0,0,0,0,0,0,0)
-    if user32.PeekMessageW(umsg,handle,NULL,NULL,ifremove)==0:return (0,0,0,0,0)    #WM_NULL
+    if user32.PeekMessageW(umsg, handle, NULL, NULL, ifremove) == 0: return 0, 0, 0, 0, 0  #WM_NULL
     a,message,wParam,lParam,e,f,g = struct.unpack("@5L2l", umsg)
     if IF_EXACT_MOUS:
         return (message,wParam,lParam)+MOUSPOSEXACT(handle,(f,g))
-    return (message,wParam,lParam,f,g)
+    return message, wParam, lParam, f, g
+
 
 def GetMessage(handle,IF_STOP=False):  #PASS EXIT MESSAGE  #WHEN WM_CLOSE NOT FROM THE WINDOW, GETMESSAGE WILL PROCESS IT.  #USE IF POSSIBLE
     umsg = struct.pack("@5L2l",0,0,0,0,0,0,0)
     if not IF_STOP:
         if user32.PeekMessageW(umsg,handle,0,0,0):
-            if user32.GetMessageW(umsg,handle,NULL,NULL)==0:return (WM_CLOSE,0,0,0,0)
-            a,message,wParam,lParam,e,f,g = struct.unpack("@5L2l", umsg)
-            return (message,wParam,lParam,f,g)
-        else:return(0,0,0,0,0)
+	        if user32.GetMessageW(umsg, handle, NULL, NULL) == 0: return WM_CLOSE, 0, 0, 0, 0
+	        a,message,wParam,lParam,e,f,g = struct.unpack("@5L2l", umsg)
+	        return message, wParam, lParam, f, g
+        else: return 0, 0, 0, 0, 0
     else:
-        if user32.GetMessageW(umsg,handle,NULL,NULL)==0:return (WM_CLOSE,0,0,0,0)
-        a,message,wParam,lParam,e,f,g = struct.unpack("@5L2l", umsg)
-        return (message,wParam,lParam,f,g)
+	    if user32.GetMessageW(umsg, handle, NULL, NULL) == 0: return WM_CLOSE, 0, 0, 0, 0
+	    a,message,wParam,lParam,e,f,g = struct.unpack("@5L2l", umsg)
+	    return message, wParam, lParam, f, g
+
+
 def GetCursorPos(handle,IF_EXACT_MOUS=True):
     upt = struct.pack("@2L", 0,0)
     if user32.GetCursorPos(upt)==0:
@@ -323,13 +323,15 @@ def GetCursorPos(handle,IF_EXACT_MOUS=True):
     f,g = struct.unpack("@2L", upt)
     try:
         if IF_EXACT_MOUS:return MOUSPOSEXACT(handle,(f,g))
-        else:return (f,g)
+        else: return f, g
     except SystemError:
-        return (-1,-1)
-    
+	    return -1, -1
+
+
 def MOUSPOSEXACT(handle,MousPOS):
     pt = ScreenToClient(handle,MousPOS)
-    return (pt.x,pt.y)
+    return pt.x, pt.y
+
 
 def ScreenToClient(handle,GLOBALMOUSEPOS):
     x,y = GLOBALMOUSEPOS
@@ -344,13 +346,15 @@ def GetWindowRect(handle):
     if user32.GetWindowRect(handle,urect)==0:
             raise SystemError("func: GetWindowRect fails")
     a,b,c,d = struct.unpack("@4L", urect)
-    return (a,b,c,d)
+    return a, b, c, d
+
 
 def GetClientRect(handle,IFRETURNCLASS=False):
     rect = RECT()
     if not user32.GetClientRect(handle,ctypes.pointer(rect)):raise SystemError()
     if IFRETURNCLASS:return rect
-    return (rect.left,rect.top,rect.right,rect.bottom)
+    return rect.left, rect.top, rect.right, rect.bottom
+
 
 def ShowWindow(handle,SW_FLAG):
     user32.ShowWindow(handle,SW_FLAG)
@@ -375,9 +379,9 @@ def GetOpenFileName(handle,strFilter=None):
     ofn = OPENFILENAMEW()
     ofn.lStructSize = ctypes.sizeof(OPENFILENAMEW())
     ofn.hwndOwner = handle
-    
-    if strFilter == None:
-        ofn.lpstrFilter = ctypes.c_wchar_p("All Files(*.*)"+'\x00'+"*.*"+'\x00\x00')
+
+    if strFilter is None:
+	    ofn.lpstrFilter = ctypes.c_wchar_p("All Files(*.*)"+'\x00'+"*.*"+'\x00\x00')
     else:
         ofn.lpstrFilter = ctypes.c_wchar_p(strFilter)
         
@@ -385,7 +389,9 @@ def GetOpenFileName(handle,strFilter=None):
     ofn.lpstrFile = output
     ofn.nMaxFile = 255
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_HIDEREADONLY
-    return (comdlg32.GetOpenFileNameW(ctypes.pointer(ofn)),ctypes.wstring_at(output))
+    return comdlg32.GetOpenFileNameW(ctypes.pointer(ofn)), ctypes.wstring_at(output)
+
+
 def GetSaveFileName(handle,strFilter=None):
     '''
 "type0def"+"\\x00"+"type0attr0;type0attr1..."+"\\x00"+...end:"\\x00\\x00"
@@ -394,9 +400,9 @@ def GetSaveFileName(handle,strFilter=None):
     ofn = OPENFILENAMEW()
     ofn.lStructSize = ctypes.sizeof(OPENFILENAMEW())
     ofn.hwndOwner = handle
-    
-    if strFilter == None:
-        ofn.lpstrFilter = ctypes.c_wchar_p("All Files(*.*)"+'\x00'+"*.*"+'\x00\x00')
+
+    if strFilter is None:
+	    ofn.lpstrFilter = ctypes.c_wchar_p("All Files(*.*)"+'\x00'+"*.*"+'\x00\x00')
     else:
         ofn.lpstrFilter = ctypes.c_wchar_p(strFilter)
         
@@ -404,7 +410,9 @@ def GetSaveFileName(handle,strFilter=None):
     ofn.lpstrFile = output
     ofn.nMaxFile = 255
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_HIDEREADONLY
-    return (comdlg32.GetSaveFileNameW(ctypes.pointer(ofn)),ctypes.wstring_at(output))    
+    return comdlg32.GetSaveFileNameW(ctypes.pointer(ofn)), ctypes.wstring_at(output)
+
+
 def LoadMenu(handle,hRes,res_id):
     hMenu = user32.LoadMenuW(hRes,res_id)
     user32.SetMenu(handle,hMenu)
@@ -463,7 +471,9 @@ def ChooseColor(handle,currentcolor):
     cc.lpCustColors = cust
     cc.Flags = CC_ANYCOLOR|CC_FULLOPEN|CC_RGBINIT
     if comdlg32.ChooseColorW(ctypes.pointer(cc)):return RGB(cc.rgbResult)
-    else:return (-1,-1,-1)
+    else: return -1, -1, -1
+
+
 ##============================================================
 def GetClassLongPtr(handle,nIndex):     
     try:

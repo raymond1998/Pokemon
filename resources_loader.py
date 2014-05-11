@@ -38,7 +38,7 @@ def res_walk( img, wObj = 3, hObj = 4, arrg =  RET_RAW ):
             for x in range(wObj):
                 imgs[y].append(img.subsurface(pygame.Rect(x*dx, y*dy, dx, dy)).copy())
         imgs = char_walk(arrg, *imgs)
-    return (imgs, (dx, dy))
+    return imgs, (dx, dy)
 
 
 if __name__ == "__main__":
