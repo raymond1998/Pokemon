@@ -1,8 +1,11 @@
 import copy
+
 import pygame
+
 import rgine
 import basics as base
 import ChiangObjectives as character
+
 textureSize = 32
 ScreenSize = (16*textureSize, 9*textureSize)
 
@@ -61,10 +64,11 @@ while True:
 		y -= 1
 	elif evt.isKeyDown("s"):
 		y += 1
-	elif evt.isKeyDown("a"):
-		x -= 1
-	elif evt.isKeyDown("d"):
-		x += 1
+	if not y:
+		if evt.isKeyDown("a"):
+			x -= 1
+		elif evt.isKeyDown("d"):
+			x += 1
 
 	# check npc event
 	player = pManager.getPlayer()
