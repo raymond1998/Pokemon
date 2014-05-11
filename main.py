@@ -100,7 +100,7 @@ while True:
 	px, py = pos
 	px -= x/textureSize/2-0.5
 	py -= y/textureSize/2-0.5
-	world.setInitShift(px*textureSize, py*textureSize)
+	world.setShift(px*textureSize, py*textureSize)
 
 	# render gaming world
 	screen.blit(world.render_s(), (0, 0))

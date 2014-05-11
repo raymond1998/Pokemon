@@ -1,5 +1,8 @@
-from common import *
 import pygame
+
+from common import *
+
+
 class World(object):
 		def __init__(self, width, height):
 				self._size = [width, height]
@@ -10,7 +13,7 @@ class World(object):
 				self._rect[2] = width
 				self._rect[3] = height
 
-		def setInitShift(self, x, y):
+		def setShift(self, x, y):
 				self._rect[0] = x
 				self._rect[1] = y
 
