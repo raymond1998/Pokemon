@@ -231,14 +231,17 @@ class WindowsManager(object):
 		Destroys the window in the manager.  The class it belongs to will not be deleted.
 		:hWnd hWnd:
 		"""
-		self._windows[hWnd].release()
-		del self._windows[hWnd]
-		self._current["layer"].remove(hWnd)
-		if self._current["topmost"] == hWnd:
-			if not self._current["layer"]:
-				self._current["topmost"] = -1
-			else:
-				self._current["topmost"] = self._current["layer"][-1]
+		if hWnd in self._current["layer"]:
+			self._windows[hWnd].release()
+			del self._windows[hWnd]
+			self._current["layer"].remove(hWnd)
+			if self._current["topmost"] == hWnd:
+				if not self._current["layer"]:
+					self._current["topmost"] = -1
+				else:
+					self._current["topmost"] = self._current["layer"][-1]
+			return True
+		return False
 
 	def MoveWindow(self, hWnd, x, y):
 		"""

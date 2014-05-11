@@ -1,5 +1,7 @@
 import pygame
+
 import rgine as rgine
+
 
 def init_terrain(terrain_name, texture_name, is_display_mode_set=True, textureSize=32):
 	terrain = rgine.Terrain("r", textureSize, textureSize)
@@ -143,14 +145,14 @@ class NPCManager(object):
 		def __init__(self):
 			self._npc = []
 
-		def new(self, obj, x, y):
-			obj.setPos(x, y)
+		def new(self, x, y, obj):
+			obj.setPos((x, y))
 			self._npc.append(obj)
 
 		def update(self, terrainRect, uPos):
 			for i in self._npc:
 				if terrainRect.collidepoint(*i.getPos()):
-					if i.hasEvent(uPos): yield i, True
+					if i.hasEvent(*uPos): yield i, True
 					else: yield i, False
 
 		def delete(self, obj):

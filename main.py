@@ -3,7 +3,7 @@ import copy
 import pygame
 
 import rgine
-import basics as base
+import base as base
 import ChiangObjectives as character
 
 textureSize = 32
@@ -109,7 +109,7 @@ while True:
 		surf, pos = i.render(evt, wm)
 		if surf is None:
 			i.release(wm)
-			pEvent.remove(i)
+			pEventList.remove(i)
 		else:
 			screen.blit(surf, pos)
 

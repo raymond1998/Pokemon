@@ -3,8 +3,10 @@
 #Designed by Charles-Jianye Chen 2014
 
 import os
-import pygame
 import inspect
+
+import pygame
+
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 def save_buffer(filename, surface):
@@ -12,7 +14,7 @@ def save_buffer(filename, surface):
 	buf = surface.get_buffer()
 	t.write(buf.raw)
 	del buf
-	os.system(path+"\\rgine_bgra2rgba.exe %s"%filename)
+	os.system("\""+path+"\\rgine_bgra2rgba.exe\" %s"%filename)
 	return surface.get_size()
 
 def read_buffer(filename, width, height, fmt="RGBA"):
