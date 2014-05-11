@@ -76,7 +76,10 @@ while True:
 	px, py = player.getPos()
 	px+=x; py+=y
 	for npc, bNpcEvent in npcManager.update(pygame.Rect(rgx[0], rgy[0], rgx[1]-rgx[0], rgy[1]-rgy[0]), (px, py)):
-		if bNpcEvent: pEventList.append(copy.deepcopy(npc))
+		if bNpcEvent:
+			pEventList.append(copy.deepcopy(npc))
+			if not pEventList[-1].init(evt, wm):
+				pEventList.pop()
 		surf, pos = npc.render(evt, wm)
 		if surf is None:
 			npcManager.delete(npc)
