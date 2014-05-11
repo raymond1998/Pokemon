@@ -2,14 +2,9 @@ from basics import *
 from resources_loader import *
 __author__ = 'Charles-Jianye Chen'
 
-class TestNPC(NPC):
-	wmacro = rgine.windows.WindowsMacros()
+class TestNPC(NPC_Skeleton):
 	def __init__(self, pos, res_walk):
 		super(TestNPC, self).__init__(pos, res_walk)
-		self._pos = pos
-		self._res = res_walk
-		self._activated = False
-		self._hWnds = {}
 
 	def init(self, evt, wm):
 		if not self._activated:
@@ -21,7 +16,6 @@ class TestNPC(NPC):
 						  self.wmacro.MB_ICONWARNING | self.wmacro.MB_CANCELTRYCONTINUE
 						  , [_button_size[0]//2, _button_size[1]//2]))
 			self._hWnds["msgbox"] = msgbox
-			print(wm.GetCurrentWindows())
 			return True
 		return False
 
@@ -29,20 +23,12 @@ class TestNPC(NPC):
 		if not self._activated: return self._res.front[1], self._pos
 
 		umsg = wm.getMsg(self._hWnds["msgbox"])
-		if umsg is None: return None, self._pos # is terminated
+		if umsg is None: self.release(wm) # is terminated
 		else:
-			if umsg == self.wmacro.IDCANCEL:
-				print("Cancel")
-				return None, self._pos
-		return pygame.Surface((1, 1)), (0, 0)
+			if umsg != self.wmacro.IDNORESULT:
+				self.release(wm)
+		return self._res.front[1], self._pos
 
-
-	def release(self, wm):
-		print(self._hWnds, wm.GetCurrentWindows())
-		for i in self._hWnds:
-			wm.DestroyWindow(self._hWnds[i])
-		self._hWnds = {}
-		self._activated = False
 
 # pos(terrain)->tuple: pEvent/inh. class, init_args
 playerEvent = {}

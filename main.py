@@ -1,5 +1,3 @@
-import copy
-
 import pygame
 
 import rgine
@@ -36,14 +34,14 @@ world.setTextureFormat(textureSize, textureSize)
 evt = rgine.Event()
 wm = rgine.windows.WindowsManager()
 
-
-pManager = base.PlayerManager(character.player, terrain)
+pManager = base.PlayerManager(character.player, terrain, base.playerEvent, base.npcs)
 npcManager = base.NPCManager()
 
 for i in base.npcs:
 	npcManager.new(i[0], i[1], base.npcs[i])
 
 pEventList = []
+runningNpcEvent = base.NPC(None, None)
 while True:
 	evt.update()
 
@@ -60,15 +58,17 @@ while True:
 	# check user event
 	pManager.updateEvent(evt, wm)
 	x = y = 0
-	if evt.isKeyDown("w"):
-		y -= 1
-	elif evt.isKeyDown("s"):
-		y += 1
-	if not y:
-		if evt.isKeyDown("a"):
-			x -= 1
-		elif evt.isKeyDown("d"):
-			x += 1
+
+	if not runningNpcEvent.isRunning():
+		if evt.isKeyDown("w"):
+			y -= 1
+		elif evt.isKeyDown("s"):
+			y += 1
+		if not y:
+			if evt.isKeyDown("a"):
+				x -= 1
+			elif evt.isKeyDown("d"):
+				x += 1
 
 	# check npc event
 	player = pManager.getPlayer()
@@ -77,9 +77,10 @@ while True:
 	px+=x; py+=y
 	for npc, bNpcEvent in npcManager.update(pygame.Rect(rgx[0], rgy[0], rgx[1]-rgx[0], rgy[1]-rgy[0]), (px, py)):
 		if bNpcEvent:
-			pEventList.append(copy.deepcopy(npc))
-			if not pEventList[-1].init(evt, wm):
-				pEventList.pop()
+			if not runningNpcEvent.isRunning() and npc.init(evt, wm):
+				runningNpcEvent = npc
+			else:
+				runningNpcEvent = base.NPC(None, None)
 		surf, pos = npc.render(evt, wm)
 		if surf is None:
 			npcManager.delete(npc)

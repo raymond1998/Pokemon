@@ -36,6 +36,7 @@ def approx(a, b):
 	if -1 <= c <= -0.99: return True
 	return False
 
+
 class pEvent(object):
 	def __init__(self, *args):
 		pass
@@ -67,21 +68,42 @@ class pEvent(object):
 		"""
 		pass
 
+
 class NPC(pEvent):
 	# npcs are events
-	# using terrain pos
+	# using terrain pos ALL THE TIME
+	# wm could render to screen directly
 	def __init__(self, pos, res_walk):
 		super(NPC, self).__init__()
 		self._pos = pos
 		self._res = res_walk
+		self._activated = False
 
 	def init(self, evt, wm):
+		"""
+		Prepare for the activation of this event, create windows objects.
+		:rgine.Event evt:
+		:rgine.windows.WindowsManager wm:
+		:return bool:
+		"""
 		return True
 
 	def render(self, evt, wm):
+		"""
+		Render the scene.
+		Note that this function will be called anyways, you are responsible to figure out if the event is activated.
+		:rgine.Event evt:
+		:rgine.windows.WindowsManager wm:
+		:return pygame.Surface, tuple/list(pos)(terrain pos):
+		"""
 		return self._res.front[1], self._pos
 
 	def release(self, wm):
+		"""
+		Prepare for the next activation of this event, cleanup.
+		Note that you are responsible for destroying windows in WindowsManager
+		:rgine.windows.WindowsManager wm:
+		"""
 		pass
 
 	def hasEvent(self, x, y):
@@ -95,28 +117,71 @@ class NPC(pEvent):
 	def setPos(self, pos):
 		self._pos = pos
 
+	def isRunning(self):
+		return self._activated
+
+
+class NPC_Skeleton(NPC):
+	wmacro = rgine.windows.WindowsMacros()
+
+	def __init__(self, pos, res_walk):
+		super(NPC_Skeleton, self).__init__(pos, res_walk)
+		self._pos = pos
+		self._res = res_walk
+		self._hWnds = {}
+
+	def init(self, evt, wm):
+		if not self._activated:
+			self._activated = True
+			return True
+		return False
+
+	def render(self, evt, wm):
+		if not self._activated: return self._res.front[1], self._pos
+		for i in self._hWnds:
+			umsg = wm.getMsg(i)
+		return self._res.front[1], self._pos
+
+	def release(self, wm):
+		for i in self._hWnds:
+			wm.DestroyWindow(self._hWnds[i])
+		self._hWnds = {}
+		self._activated = False
+
 
 class PlayerManager(object):
-		def __init__(self, player, terrain):
+		def __init__(self, player, terrain, playerEvent, npcs):
 				self._player = player
 				self._terrain = terrain
+				self.playerEvent = playerEvent
+				self.npcs = npcs
 				self._evt = None
 				self._wm = None
 
-		def isPlayerEvent(self, x, y):
-				if (x, y) in playerEvent:
-					return playerEvent[(x, y)]
-				else:
-					return False
-
-		def isTerrainReachable(self, x, y):
+		def testTerrain(self, x, y, digit):
 				prpty = self._terrain.getProperty_s(x, y)
 				if prpty is None: return False
-				r = test(prpty, 0)
+				r = test(prpty, digit)
 				if r:
 						return True
 				else:
 						return False
+
+		def isTerrainReachable(self, x, y):
+				return self.testTerrain(x, y, 0)
+
+		def isPlayerEvent(self, x, y):
+				# r = self.testTerrain(x, y, 1)
+				if (x, y) in self.playerEvent:
+					return self.playerEvent[(x, y)]
+				else:
+					return False
+
+		def isNpcEvent(self, x, y):
+				if (x, y) in self.npcs:
+					return True
+				else:
+					return False
 
 		def updateEvent(self, evt, wm):
 				self._evt = evt
@@ -131,6 +196,9 @@ class PlayerManager(object):
 				if tx<0 or ty<0 or (not self.isTerrainReachable(int(tx), int(ty))):
 					return self._player.render(self._evt), -1, False
 
+				r = self.isNpcEvent(int(tx), int(ty))
+				if r: return self._player.render(self._evt), -1, False
+
 				r = self.isPlayerEvent(int(tx), int(ty))
 				if r: return self._player.render(self._evt), r, False
 
@@ -139,6 +207,7 @@ class PlayerManager(object):
 
 		def getPlayer(self):
 			return self._player
+
 
 class NPCManager(object):
 	# using terrain offsets
@@ -161,6 +230,6 @@ class NPCManager(object):
 				return True
 			return False
 
-playerEvent = {}    # pos(terrain)->tuple: pEvent/inh. class, init_args
-npcs = {}   # load these npcs before game starts
-			# (x, y): npc_object
+# playerEvent = {}    # pos(terrain)->tuple: pEvent/inh. class, init_args
+# npcs = {}   # load these npcs before game starts
+# 			# (x, y): npc_object
