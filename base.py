@@ -37,7 +37,6 @@ class CoversationNPC(NPC_Skeleton):
 		self._sentences = sentences
 		for i in range(len(self._sentences)):
 			self._sentences[i] = "    "+self._sentences[i]
-		print(self._sentences)
 
 	def init(self, evt, wm):
 		if not self._activated:
@@ -71,8 +70,6 @@ class CoversationNPC(NPC_Skeleton):
 				self._bk_.fill((150, 150, 150, 255//2))
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)
-					if hWnd == self._text0:
-						print(hWnd, msg, surface, pos)
 					if hWnd == self._button0:
 						self._umsg = msg
 						if msg == self.wmacros.HIT:
