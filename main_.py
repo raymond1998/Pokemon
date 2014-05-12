@@ -1,5 +1,7 @@
 import cProfile
+
 import pygame
+
 p = cProfile.Profile()
 
 #for exception handling, relies on where this is defined
@@ -65,9 +67,9 @@ while running:
 	evt.update()
 	if evt.type == pygame.QUIT:
 		running = False
-	if evt.isKeyHit("\x1b"):    # escape
+	if evt.isKeyHit(pygame.K_ESCAPE):    # escape
 		running = False
-	if evt.isKeyDown("t"):
+	if evt.isKeyDown(pygame.K_t):
 		t.setTexture(pygame.Surface((32, 32)), 2)
 	else:
 		t.setTexture(img, 2)

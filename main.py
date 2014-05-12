@@ -60,14 +60,14 @@ while True:
 	x = y = 0
 
 	if not runningNpcEvent.isRunning():
-		if evt.isKeyDown("w"):
+		if evt.isKeyDown(pygame.K_UP) or evt.isKeyDown(pygame.K_w):
 			y -= 1
-		elif evt.isKeyDown("s"):
+		elif evt.isKeyDown(pygame.K_DOWN) or evt.isKeyDown(pygame.K_s):
 			y += 1
 		if not y:
-			if evt.isKeyDown("a"):
+			if evt.isKeyDown(pygame.K_LEFT) or evt.isKeyDown(pygame.K_a):
 				x -= 1
-			elif evt.isKeyDown("d"):
+			elif evt.isKeyDown(pygame.K_RIGHT) or evt.isKeyDown(pygame.K_d):
 				x += 1
 
 	# check npc event

@@ -44,7 +44,7 @@ while True:
 	evt.update()
 	if evt.type == pygame.QUIT:
 		break
-	if evt.isKeyHit("\x1b"):    # escape
+	if evt.isKeyHit(pygame.K_ESCAPE):    # escape
 		break
 	if evt.isKeyDown("t"):
 		t.setTexture(pygame.Surface((32, 32)), 2)

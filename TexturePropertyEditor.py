@@ -1,8 +1,11 @@
 __author__ = 'Charles-Jianye Chen'
 import os
-import pygame
-import wapisp
 import time
+
+import pygame
+
+import wapisp
+
 pygame.init()
 import rgine as rgine
 rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
@@ -92,7 +95,7 @@ while True:
 
 
 
-	if evt.isMouseHit(evt.MOUSE_SCROLL_UP) and evt.isKeyDown("\x20"):
+	if evt.isMouseHit(evt.MOUSE_SCROLL_UP) and evt.isKeyDown(pygame.K_LSHIFT):
 		if wRect.collidepoint(evt.getMousePos()):
 			world.shiftH(-textureSize)
 
@@ -100,7 +103,7 @@ while True:
 		if wRect.collidepoint(evt.getMousePos()):
 			world.shiftV(-textureSize)
 
-	if evt.isMouseHit(evt.MOUSE_SCROLL_DOWN) and evt.isKeyDown("\x20"):
+	if evt.isMouseHit(evt.MOUSE_SCROLL_DOWN) and evt.isKeyDown(pygame.K_LSHIFT):
 		if wRect.collidepoint(evt.getMousePos()):
 			world.shiftH(textureSize)
 

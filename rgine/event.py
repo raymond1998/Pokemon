@@ -27,9 +27,9 @@ class Event(object):
 			self._mousemotionY+=ty
 			return self.update()
 		if evt.type == pygame.KEYDOWN:
-			self.KEYDOWN.add(evt.dict["unicode"])
+			self.KEYDOWN.add(evt.dict["key"])
 		elif evt.type == pygame.KEYUP:
-			try: self.KEYDOWN.remove(chr(evt.dict["key"]))
+			try: self.KEYDOWN.remove(evt.dict["key"])
 			except Exception: pass
 		elif evt.type == pygame.MOUSEBUTTONDOWN:
 			self.MOUSEDOWN.add(evt.dict["button"])
@@ -56,7 +56,7 @@ class Event(object):
 	def isKeyDown(self, key):
 		"""
 		Check if the specific key is down.
-		:str(unicode) key:
+		:keycode key:
 		:return bool:
 		"""
 		if key in self.KEYDOWN: return True
@@ -65,10 +65,10 @@ class Event(object):
 	def isKeyHit(self, key):
 		"""
 		Check if the specific key is hit.
-		:str(unicode) key:
+		:keycode key:
 		:return bool:
 		"""
-		if self.type == pygame.KEYDOWN and self.dict["unicode"] == key: return True
+		if self.type == pygame.KEYDOWN and self.dict["key"] == key: return True
 		return False
 
 	def isMouseDown(self, key):

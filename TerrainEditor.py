@@ -1,6 +1,8 @@
 __author__ = 'Charles-Jianye Chen'
 import pygame
+
 import wapisp
+
 MB_ICONQUESTION = 0x00000020
 MB_ICONINFORMATION = 0x00000040
 import time
@@ -132,7 +134,7 @@ while running:
 		selectedR = [(0, 0), (0, 0)]
 
 
-	if evt.isMouseHit(evt.MOUSE_SCROLL_UP) and evt.isKeyDown("\x20"):
+	if evt.isMouseHit(evt.MOUSE_SCROLL_UP) and evt.isKeyDown(pygame.K_LSHIFT):
 		if wReadRect.collidepoint(evt.getMousePos()):
 			wRead.shiftH(-textureSize)
 		elif wWriteRect.collidepoint(evt.getMousePos()):
@@ -144,7 +146,7 @@ while running:
 		elif wWriteRect.collidepoint(evt.getMousePos()):
 			wWrite.shiftV(-textureSize)
 
-	if evt.isMouseHit(evt.MOUSE_SCROLL_DOWN) and evt.isKeyDown("\x20"):
+	if evt.isMouseHit(evt.MOUSE_SCROLL_DOWN) and evt.isKeyDown(pygame.K_LSHIFT):
 		if wReadRect.collidepoint(evt.getMousePos()):
 			wRead.shiftH(textureSize)
 		elif wWriteRect.collidepoint(evt.getMousePos()):
