@@ -36,7 +36,6 @@ wm = rgine.windows.WindowsManager()
 
 pManager = base.PlayerManager(character.player, terrain, base.playerEvent, base.npcs)
 npcManager = base.NPCManager()
-
 for i in base.npcs:
 	npcManager.new(i[0], i[1], base.npcs[i])
 
@@ -44,7 +43,6 @@ pEventList = []
 runningNpcEvent = base.NPC(None, None)
 while True:
 	evt.update()
-
 	if evt.type == pygame.QUIT: break
 	screen.fill((0, 0, 0))
 

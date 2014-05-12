@@ -139,7 +139,7 @@ class NPC_Skeleton(NPC):
 	def render(self, evt, wm):
 		if not self._activated: return self._res.front[1], self._pos
 		for i in self._hWnds:
-			umsg = wm.getMsg(i)
+			umsg = wm.getMsg(self._hWnds[i])
 		return self._res.front[1], self._pos
 
 	def release(self, wm):
