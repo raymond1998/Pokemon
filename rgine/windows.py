@@ -870,6 +870,7 @@ class _windowMsgbox(_windowFramed):
 					break
 			if p == len(self._buttons): p = 0
 			self._wm.SetTopmost(self._buttons[p][0], True)
+			self._wm.SetTopmost(self._buttons[p][0], False)
 
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
 			self._surf.blit(surface, pos)
