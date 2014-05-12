@@ -35,27 +35,35 @@ class CoversationNPC(NPC_Skeleton):
 		if not len(sentences): raise ValueError(len(sentences))
 		super(CoversationNPC, self).__init__(pos, res_walk)
 		self._sentences = sentences
+		for i in range(len(self._sentences)):
+			self._sentences[i] = "    "+self._sentences[i]
 
 	def init(self, evt, wm):
 		if not self._activated:
 			self._activated = True
-			_button_size = [158, 59]
+			_button_size = [158*2//3, 59*2//3]
 			text = self._sentences
 			def init(self, hWnd):
 				nonlocal text
 				self._text = text
 				self._text_indx = 0
 				self.wmacros = rgine.windows.WindowsMacros()
-				self._button0 = self._wm.CreateWindow(self.wmacros.WC_BUTTON, (_button_size, rgine.windows._button, "OK",
-												  pygame.font.SysFont('Times New Romen', 16),
-												  True, (255, 255, 255)), True)
-				self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT, ((100, 100), None, self._text[self._text_indx],
+				self._handle = hWnd
+				self._umsg = 0
+				self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
+				x, y = self._size
+
+				self._button0 = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
+				                                    (_button_size, rgine.windows._button, "OK",
+												        pygame.font.SysFont('Times New Romen', 16),
+												        True, (255, 255, 255)), True)
+				self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT,
+				                                    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
-				self._handle = hWnd
-				self._wm.MoveWindow(self._button0, 0, 100)
-				self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
-				self._umsg = 0
+
+				self._wm.MoveWindow(self._button0, x//2-_button_size[0]//2, (y-_button_size[1])*8//10)
+				self._wm.MoveWindow(self._text0, x*1//10, y*1//10)
 
 			def cb(self, event, uMsg):
 				self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
@@ -68,10 +76,12 @@ class CoversationNPC(NPC_Skeleton):
 							self._text_indx += 1
 							if self._text_indx == len(self._text): return False
 							self._wm.DestroyWindow(self._text0)
+							x, y = self._size
 							self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT,
-				                                    ((100, 100), None, self._text[self._text_indx],
+				                                    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
+							self._wm.MoveWindow(self._text0, x*1//10, y*1//10)
 				return True
 
 			def rd(self):
@@ -84,7 +94,7 @@ class CoversationNPC(NPC_Skeleton):
 				self._wm.Release()
 
 			self._hWnds["dbox"] = wm.CreateWindow(
-				wm.RegisterClass(True, init, cb, rd, getMsg, rel), ((200, 200), None, "CoversationNPC",
+				wm.RegisterClass(True, init, cb, rd, getMsg, rel), ((16*20, 9*20), None, "CoversationNPC",
 														  pygame.font.SysFont('Times New Romen', 16),
 														  True, (255, 255, 255)))
 			return True
@@ -109,4 +119,12 @@ surf = rgine.read_buffer("pic1", 96, 128)
 pos = (9, 9)
 npcs[tuple(pos)] = TestNPC(pos, res_walk(surf, 3, 4, 0)[0])
 pos = (8, 10)
-npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0], ["hello", "how are you?", "see you later"])
+
+npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0],
+                                  [
+	                                  "hello ",
+	                                  # "how are you? ",
+	                                  # "see you later ",
+                                      "My name is Charles. Welcome to the world of Pokemon! ",
+                                  ]
+)
