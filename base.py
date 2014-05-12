@@ -31,22 +31,25 @@ class TestNPC(NPC_Skeleton):
 
 
 class CoversationNPC(NPC_Skeleton):
-	def __init__(self, pos, res_walk, text):
+	def __init__(self, pos, res_walk, sentences):
+		if not len(sentences): raise ValueError(len(sentences))
 		super(CoversationNPC, self).__init__(pos, res_walk)
-		self._text = text
+		self._sentences = sentences
 
 	def init(self, evt, wm):
 		if not self._activated:
 			self._activated = True
 			_button_size = [158, 59]
-			text = self._text
+			text = self._sentences
 			def init(self, hWnd):
 				nonlocal text
+				self._text = text
+				self._text_indx = 0
 				self.wmacros = rgine.windows.WindowsMacros()
 				self._button0 = self._wm.CreateWindow(self.wmacros.WC_BUTTON, (_button_size, rgine.windows._button, "OK",
 												  pygame.font.SysFont('Times New Romen', 16),
 												  True, (255, 255, 255)), True)
-				self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT, ((100, 100), None, text,
+				self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT, ((100, 100), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
 				self._handle = hWnd
@@ -62,7 +65,13 @@ class CoversationNPC(NPC_Skeleton):
 					if hWnd == self._button0:
 						self._umsg = msg
 						if msg == self.wmacros.HIT:
-							return False
+							self._text_indx += 1
+							if self._text_indx == len(self._text): return False
+							self._wm.DestroyWindow(self._text0)
+							self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT,
+				                                    ((100, 100), None, self._text[self._text_indx],
+														pygame.font.SysFont('Times New Romen', 16),
+														True, (255, 255, 255)), True)
 				return True
 
 			def rd(self):
@@ -100,4 +109,4 @@ surf = rgine.read_buffer("pic1", 96, 128)
 pos = (9, 9)
 npcs[tuple(pos)] = TestNPC(pos, res_walk(surf, 3, 4, 0)[0])
 pos = (8, 10)
-npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0], "hello")
+npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0], ["hello", "how are you?", "see you later"])
