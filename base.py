@@ -56,6 +56,7 @@ class CoversationNPC(NPC_Skeleton):
 
 			def cb(self, event, uMsg):
 				self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
+				self._bk_.fill((150, 150, 150, 255//2))
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)
 					if hWnd == self._button0:
@@ -74,7 +75,7 @@ class CoversationNPC(NPC_Skeleton):
 				self._wm.Release()
 
 			self._hWnds["dbox"] = wm.CreateWindow(
-				wm.RegisterClass(True, init, cb, rd, getMsg, rel), ((200, 200), None, "this is 0",
+				wm.RegisterClass(True, init, cb, rd, getMsg, rel), ((200, 200), None, "CoversationNPC",
 														  pygame.font.SysFont('Times New Romen', 16),
 														  True, (255, 255, 255)))
 			return True
