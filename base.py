@@ -100,7 +100,6 @@ class CoversationNPC(NPC_Skeleton):
 														  True, (255, 255, 255)))
 			x, y = wm.screensize
 			wm.MoveWindow(self._hWnds["dbox"], (x-dboxsize[0])//2, (y-dboxsize[1])//2)
-			print(x, y, dboxsize)
 			return True
 		return False
 
