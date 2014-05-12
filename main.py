@@ -32,7 +32,7 @@ world = rgine.TerrainWorld(terrain.width*terrain.textureW, terrain.height*terrai
 world.setScreenSize(*ScreenSize)
 world.setTextureFormat(textureSize, textureSize)
 evt = rgine.Event()
-wm = rgine.windows.WindowsManager()
+wm = rgine.windows.WindowsManager(ScreenSize)
 
 pManager = base.PlayerManager(character.player, terrain, base.playerEvent, base.npcs)
 npcManager = base.NPCManager()

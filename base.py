@@ -37,6 +37,7 @@ class CoversationNPC(NPC_Skeleton):
 		self._sentences = sentences
 		for i in range(len(self._sentences)):
 			self._sentences[i] = "    "+self._sentences[i]
+		print(self._sentences)
 
 	def init(self, evt, wm):
 		if not self._activated:
@@ -70,6 +71,8 @@ class CoversationNPC(NPC_Skeleton):
 				self._bk_.fill((150, 150, 150, 255//2))
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)
+					if hWnd == self._text0:
+						print(hWnd, msg, surface, pos)
 					if hWnd == self._button0:
 						self._umsg = msg
 						if msg == self.wmacros.HIT:
@@ -81,7 +84,7 @@ class CoversationNPC(NPC_Skeleton):
 				                                    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
-							self._wm.MoveWindow(self._text0, x*1//10, y*1//10)
+							self._wm.MoveWindowToPos(self._text0, x*1//10, y*1//10)
 				return True
 
 			def rd(self):
@@ -93,10 +96,14 @@ class CoversationNPC(NPC_Skeleton):
 			def rel(self):
 				self._wm.Release()
 
+			dboxsize = 16*20, 9*20
 			self._hWnds["dbox"] = wm.CreateWindow(
-				wm.RegisterClass(True, init, cb, rd, getMsg, rel), ((16*20, 9*20), None, "CoversationNPC",
+				wm.RegisterClass(True, init, cb, rd, getMsg, rel), (dboxsize, None, "CoversationNPC",
 														  pygame.font.SysFont('Times New Romen', 16),
 														  True, (255, 255, 255)))
+			x, y = wm.screensize
+			wm.MoveWindow(self._hWnds["dbox"], (x-dboxsize[0])//2, (y-dboxsize[1])//2)
+			print(x, y, dboxsize)
 			return True
 		return False
 
@@ -125,6 +132,6 @@ npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0],
 	                                  "hello ",
 	                                  # "how are you? ",
 	                                  # "see you later ",
-                                      "My name is Charles. Welcome to the world of Pokemon! ",
+	                                  "My name is Charles. Welcome to the world of Pokemon! ",
                                   ]
 )

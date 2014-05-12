@@ -85,7 +85,7 @@ class WindowsManager(object):
 	WM_NULL = 0
 	WM_SETFOCUS = 1
 	WM_KILLFOCUS = 2
-	def __init__(self):
+	def __init__(self, screensize=(0, 0)):
 		"""
 		Initializes all variables.
 		"""
@@ -98,6 +98,7 @@ class WindowsManager(object):
 		self._window_id = 9
 		self._current = {"layer": [], "topmost" : -1}
 		self._topmost_lock = False
+		self.screensize = screensize
 
 	def RegisterClass(self, framed=False, init=None, callback=None, render=None, getMsg=None, release=None):
 		"""
@@ -377,6 +378,21 @@ class _windowBase(object):
 				super(_WindowsManager, self).__init__()
 				self._pos = [0, 0]
 
+			def CreateWindow(self, hClass, args, topmost=True):
+				self._window_id += 1
+				self._windows[self._window_id] = self._classes[hClass](*args)
+				self._windows[self._window_id].MoveWindow(*self._pos)
+				self._windows[self._window_id].init(self._window_id)
+				if topmost or self._current["topmost"] == -1:
+					if self._current["topmost"] != -1:
+						self._windows[self._current["topmost"]].callback(event.Event(), self.WM_KILLFOCUS)
+					self._current["topmost"] = self._window_id
+					self._current["layer"].append(self._window_id)
+					self._windows[self._window_id].callback(event.Event(), self.WM_SETFOCUS)
+				else:
+					self._current["layer"].insert(-2, self._window_id)
+				return self._window_id
+
 			def DispatchMessage(self, _RgineEvent):
 				for hWnd, uMsg, surface, pos in super(_WindowsManager, self).DispatchMessage(_RgineEvent):
 					yield hWnd, uMsg, surface, \
@@ -389,6 +405,10 @@ class _windowBase(object):
 
 			def MoveObjectToPos(self, x, y):
 				self._pos = [x, y]
+
+			def getPos(self):
+				return self._pos
+
 		self._wm = _WindowsManager()
 
 	def init(self, hWnd):
@@ -407,7 +427,7 @@ class _windowBase(object):
 		self._wm.MoveObject(x, y)
 
 	def MoveWindowToPos(self, x, y):
-		self._pos = [x, y]
+		self._pos = [x+self._wm.getPos()[0], y+self._wm.getPos()[1]]
 		for hWnd in self._wm.GetCurrentWindows():
 			self._wm.MoveWindowToPos(hWnd, x, y)
 		self._wm.MoveObjectToPos(x, y)
