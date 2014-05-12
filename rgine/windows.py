@@ -308,6 +308,9 @@ class WindowsManager(object):
 		else:
 			return False
 
+	def GetTopmost(self):
+		return self._current["topmost"]
+
 	def GetCurrentWindows(self):
 		"""
 		Returns a list of handles of present windows
@@ -534,6 +537,7 @@ class _windowButton(_windowBase):
 		self._button_focus.fill((111, 111, 111, 60))
 		self._button_down = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
 		self._button_down.fill((111, 111, 111, 100))
+		self._using = "mouse"
 
 	def setRenderArgs(self, *args):
 		"""
@@ -571,14 +575,23 @@ class _windowButton(_windowBase):
 			self._state = self.NO_FOCUS
 			
 		if self._state == self.FOCUS or self._state == self.UP:
-			if RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT):
+			if RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT) and self.getRect().collidepoint(RgineEvent.getMousePos()):
 				self._state = self.DOWN
+				self._using = "mouse"
+			elif RgineEvent.isKeyDown(pygame.K_RETURN):
+				self._state = self.DOWN
+				self._using = "key"
+
 		elif self._state == self.DOWN:
-			if not RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT) \
-					and self.getRect().collidepoint(RgineEvent.getMousePos()):
-				self._state = self.HIT
-			elif not RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT):
-				self._state = self.UP
+			if self._using == "mouse":
+				if not RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT) \
+						and self.getRect().collidepoint(RgineEvent.getMousePos()):
+					self._state = self.HIT
+				elif not RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT):
+					self._state = self.UP
+			elif self._using == "key":
+				if not RgineEvent.isKeyDown(pygame.K_RETURN):
+					self._state = self.HIT
 		elif self._state == self.HIT:
 			self._state = self.UP
 
@@ -809,6 +822,8 @@ class _windowMsgbox(_windowFramed):
 		else:
 			self._icon = pygame.Surface((128, 128), pygame.SRCALPHA)
 
+		self._wm.SetTopmost(self._buttons[0][0], True)
+
 		self._icon = pygame.transform.scale(self._icon, (64, 64))
 
 		y = wsize[1]*9//10+1-self._buttonsize[1]
@@ -846,6 +861,16 @@ class _windowMsgbox(_windowFramed):
 		#after done, return True for first time, set state, then return False
 		self._surf = self._surface.copy()
 		done = False
+		if RgineEvent.isKeyHit(pygame.K_TAB) and self._wm.GetTopmost() != -1:
+			topmost = self._wm.GetTopmost()
+			p = 0
+			for i in range(len(self._buttons)):
+				p += 1
+				if topmost == self._buttons[i][0]:
+					break
+			if p == len(self._buttons): p = 0
+			self._wm.SetTopmost(self._buttons[p][0], True)
+
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
 			self._surf.blit(surface, pos)
 			if msg == WindowsMacros.HIT:
