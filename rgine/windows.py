@@ -823,6 +823,7 @@ class _windowMsgbox(_windowFramed):
 			self._icon = pygame.Surface((128, 128), pygame.SRCALPHA)
 
 		self._wm.SetTopmost(self._buttons[0][0], True)
+		self._wm.SetTopmost(self._buttons[0][0], False)
 
 		self._icon = pygame.transform.scale(self._icon, (64, 64))
 
