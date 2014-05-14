@@ -9,25 +9,26 @@ class TestNPC(NPC_Skeleton):
 	def init(self, evt, wm):
 		if not self._activated:
 			self._activated = True
-			_button_size = [158, 59]
-			msgbox = wm.CreateWindow(self.wmacro.WC_MSGBOX,
+			_button_size = self.wmacros.button_size[:]
+			# _button_size = list(map((lambda x: x//2), _button_size))
+			msgbox = wm.CreateWindow(self.wmacros.WC_MSGBOX,
 						 ((400, 200), None, "MessageBox!", None, None, None,
 						  "Good Morning! How Are You? ",
-						  self.wmacro.MB_ICONWARNING | self.wmacro.MB_CANCELTRYCONTINUE
+						  self.wmacros.MB_ICONWARNING | self.wmacros.MB_CANCELTRYCONTINUE
 						  , [_button_size[0]//2, _button_size[1]//2]))
 			self._hWnds["msgbox"] = msgbox
 			return True
 		return False
 
 	def render(self, evt, wm):
-		if not self._activated: return self._res.front[1], self._pos
-
-		umsg = wm.getMsg(self._hWnds["msgbox"])
-		if umsg is None: self.release(wm) # is terminated
-		else:
-			if umsg != self.wmacro.IDNORESULT:
-				self.release(wm)
-		return self._res.front[1], self._pos
+		if self._activated:
+			umsg = wm.getMsg(self._hWnds["msgbox"])
+			if umsg is None: self.release(wm) # is terminated
+			else:
+				if umsg != self.wmacros.IDNORESULT:
+					self.release(wm)
+					
+		return self.render_scene()
 
 
 class CoversationNPC(NPC_Skeleton):
@@ -37,11 +38,13 @@ class CoversationNPC(NPC_Skeleton):
 		self._sentences = sentences
 		for i in range(len(self._sentences)):
 			self._sentences[i] = "    "+self._sentences[i]
+		self._dir = DOWN
 
 	def init(self, evt, wm):
 		if not self._activated:
 			self._activated = True
-			_button_size = [158*2//3, 59*2//3]
+			_button_size = self.wmacros.button_size[:]
+			_button_size = list(map((lambda x: x//2), _button_size))
 			text = self._sentences
 			def init(self, hWnd):
 				nonlocal text
@@ -54,11 +57,11 @@ class CoversationNPC(NPC_Skeleton):
 				x, y = self._size
 
 				self._button0 = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
-				                                    (_button_size, rgine.windows._button, "OK",
-												        pygame.font.SysFont('Times New Romen', 16),
-												        True, (255, 255, 255)), True)
+								    (_button_size, self.wmacros.button, "OK",
+													pygame.font.SysFont('Times New Romen', 16),
+													True, (255, 255, 255)), True)
 				self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT,
-				                                    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
+								    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
 
@@ -80,7 +83,7 @@ class CoversationNPC(NPC_Skeleton):
 							self._wm.DestroyWindow(self._text0)
 							x, y = self._size
 							self._text0 = self._wm.CreateWindow(self.wmacros.WC_TEXT,
-				                                    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
+								    ((x-(x*2//10), y*6//10), None, self._text[self._text_indx],
 														pygame.font.SysFont('Times New Romen', 16),
 														True, (255, 255, 255)), True)
 							self._wm.MoveWindowToPos(self._text0, x*1//10, y*1//10)
@@ -108,14 +111,13 @@ class CoversationNPC(NPC_Skeleton):
 		return False
 
 	def render(self, evt, wm):
-		if not self._activated: return self._res.front[1], self._pos
+		if self._activated:
+			for i in self._hWnds:
+				umsg = wm.getMsg(self._hWnds[i])
+				if umsg is None:
+					self.release(wm)
 
-		for i in self._hWnds:
-			umsg = wm.getMsg(self._hWnds[i])
-			if umsg is None:
-				self.release(wm)
-
-		return self._res.front[1], self._pos
+		return self.render_scene()
 
 # pos(terrain)->tuple: pEvent/inh. class, init_args
 playerEvent = {}
@@ -128,10 +130,11 @@ npcs[tuple(pos)] = TestNPC(pos, res_walk(surf, 3, 4, 0)[0])
 pos = (8, 10)
 
 npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0],
-                                  [
-	                                  "hello ",
-	                                  # "how are you? ",
-	                                  # "see you later ",
-	                                  "My name is Charles. Welcome to the world of Pokemon! ",
-                                  ]
+				  [
+					  "hello ",
+					  # "how are you? ",
+					  # "see you later ",
+					  "My name is Charles. Welcome to the world of Pokemon! ",
+					  "Comeon Raymond! What are you doing there! ",
+				  ]
 )

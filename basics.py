@@ -2,6 +2,10 @@ import pygame
 
 import rgine as rgine
 
+UP = 0
+DOWN = 1
+RIGHT = 2
+LEFT = 3
 
 def init_terrain(terrain_name, texture_name, is_display_mode_set=True, textureSize=32):
 	terrain = rgine.Terrain("r", textureSize, textureSize)
@@ -78,6 +82,7 @@ class NPC(pEvent):
 		self._pos = pos
 		self._res = res_walk
 		self._activated = False
+		self._dir = 1
 
 	def init(self, evt, wm):
 		"""
@@ -120,14 +125,26 @@ class NPC(pEvent):
 	def isRunning(self):
 		return self._activated
 
+	def chgDir(self, dir_val):
+		self._dir = dir_val
+
+	def render_scene(self):
+		if self._dir == DOWN:
+			return self._res.front[1], self._pos
+		elif self._dir == UP:
+			return self._res.back[1], self._pos
+		elif self._dir == LEFT:
+			return self._res.left[1], self._pos
+		elif self._dir == RIGHT:
+			return self._res.right[1], self._pos
+		raise ValueError(self._dir)
+		
 
 class NPC_Skeleton(NPC):
-	wmacro = rgine.windows.WindowsMacros()
+	wmacros = rgine.windows.WindowsMacros()
 
 	def __init__(self, pos, res_walk):
 		super(NPC_Skeleton, self).__init__(pos, res_walk)
-		self._pos = pos
-		self._res = res_walk
 		self._hWnds = {}
 
 	def init(self, evt, wm):
@@ -137,10 +154,10 @@ class NPC_Skeleton(NPC):
 		return False
 
 	def render(self, evt, wm):
-		if not self._activated: return self._res.front[1], self._pos
-		for i in self._hWnds:
-			umsg = wm.getMsg(self._hWnds[i])
-		return self._res.front[1], self._pos
+		if self._activated:
+			for i in self._hWnds:
+				umsg = wm.getMsg(self._hWnds[i])
+		return self.render_scene()
 
 	def release(self, wm):
 		for i in self._hWnds:

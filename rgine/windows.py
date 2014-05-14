@@ -13,6 +13,10 @@ path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 _icon_x = read_buffer(path+"/x", 128, 128)
 _button_size = [158, 59]
 _button = read_buffer(path+"/button", _button_size[0], _button_size[1])
+_button_res_focus = pygame.Surface(_button_size, pygame.SRCALPHA)
+_button_res_focus.fill((111, 111, 111, 60))
+_button_res_down = pygame.Surface(_button_size, pygame.SRCALPHA)
+_button_res_down.fill((111, 111, 111, 100))
 _icon_help = read_buffer(path+"/res/help", 128, 128)
 _icon_info = read_buffer(path+"/res/info", 128, 128)
 _icon_stop = read_buffer(path+"/res/stop", 128, 128)
@@ -21,6 +25,10 @@ _icon_warning = read_buffer(path+"/res/warning", 128, 128)
 pygame.font.init()
 
 class WindowsMacros(object):
+	# resources
+	button = _button
+	button_size = _button_size[:]
+
 	# Windows Messages
 	WM_NULL = 0
 	WM_SETFOCUS = 1
@@ -533,10 +541,10 @@ class _windowButton(_windowBase):
 
 		self.setRenderArgs(*args)
 
-		self._button_focus = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
-		self._button_focus.fill((111, 111, 111, 60))
-		self._button_down = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
-		self._button_down.fill((111, 111, 111, 100))
+		# self._button_focus = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
+		# self._button_focus.fill((111, 111, 111, 60))
+		# self._button_down = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
+		# self._button_down.fill((111, 111, 111, 100))
 		self._using = "mouse"
 
 	def setRenderArgs(self, *args):
@@ -552,11 +560,11 @@ class _windowButton(_windowBase):
 		if self._state == self.NO_FOCUS:
 			pass
 		elif self._state == self.FOCUS or self._state == self.UP:
-			bk.blit(self._button_focus, (0, 0))
+			bk.blit(_button_res_focus, (0, 0))
 		elif self._state == self.DOWN:
-			bk.blit(self._button_down, (0, 0))
+			bk.blit(_button_res_down, (0, 0))
 		elif self._state == self.HIT:
-			bk.blit(self._button_focus, (0, 0))
+			bk.blit(_button_res_focus, (0, 0))
 		else:
 			print(self._state)
 		Surface = self._args[1].render(*([self._args[0]]+self._args[2:4]))

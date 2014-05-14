@@ -73,10 +73,21 @@ while True:
 	player.normalize_pos()
 	px, py = player.getPos()
 	px+=x; py+=y
+
+	#npc direction calc.
+	di = base.DOWN
+	if x > 0:
+		di = base.LEFT
+	elif x < 0:
+		di = base.RIGHT
+	elif y > 0:
+		di = base.UP
+		
 	for npc, bNpcEvent in npcManager.update(pygame.Rect(rgx[0], rgy[0], rgx[1]-rgx[0], rgy[1]-rgy[0]), (px, py)):
 		if bNpcEvent:
 			if not runningNpcEvent.isRunning() and npc.init(evt, wm):
 				runningNpcEvent = npc
+				npc.chgDir(di)
 			else:
 				runningNpcEvent = base.NPC(None, None)
 		surf, pos = npc.render(evt, wm)
