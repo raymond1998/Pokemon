@@ -6,6 +6,7 @@ from pygame import *
 from resources_loader import *
 
 
+
 _CURRENT_ID = 0
 UP = 0
 DOWN = 1
