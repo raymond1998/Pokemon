@@ -74,7 +74,7 @@ while True:
 	pManager.updateEvent(evt, wm)
 	x = y = 0
 
-	if not runningNpcEvent.isRunning() and not uMenu.isRunning():
+	if not runningNpcEvent.isRunning() and not uMenu.isRunning() and not uBattle.isRunning():
 		if evt.isKeyDown(pygame.K_UP) or evt.isKeyDown(pygame.K_w):
 			y -= 1
 		elif evt.isKeyDown(pygame.K_DOWN) or evt.isKeyDown(pygame.K_s):
