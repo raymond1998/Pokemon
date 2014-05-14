@@ -1,9 +1,9 @@
 import random
-import time
 
 from pygame import *
 
 from resources_loader import *
+
 
 
 
