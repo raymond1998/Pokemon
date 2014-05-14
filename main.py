@@ -2,6 +2,7 @@ import pygame
 
 import rgine
 import base as base
+import menu as menu
 import ChiangObjectives as character
 
 textureSize = 32
@@ -15,12 +16,23 @@ bsc = base.renderInitScene(ScreenSize, pgbar)
 import ctypes
 ctypes.windll.user32.MessageBoxW(0, "Close this window to run. ", "Run", 0)
 
+
+intro_text = rgine.windows.render_text\
+	(
+			ScreenSize,
+		    "CLOSE THIS WINDOW TO RUN!  \n"
+			"Hit SPACE to show menu.  \n",
+		    pygame.font.SysFont('Times New Romen', 16),
+		    True, (255, 255, 255)
+	)
+
 while True:
 	try:
 		screen.blit(bsc.__next__(), (0, 0))
 	except:
 		# exit(0)
 		break
+	screen.blit(intro_text, (0, 0))
 	pygame.display.flip()
 
 terrain = base.init_terrain("1399339488.terrain", "myTexture.texture", True, textureSize)
@@ -41,6 +53,9 @@ for i in base.npcs:
 
 pEventList = []
 runningNpcEvent = base.NPC(None, None)
+
+uMenu = menu.init_menu(menu.buttons, menu.inst)
+
 while True:
 	evt.update()
 	if evt.type == pygame.QUIT: break
@@ -123,6 +138,10 @@ while True:
 		else:
 			screen.blit(surf, pos)
 
+	# User Menu
+	surf, pos = uMenu.update(evt, wm)
+	if surf is not None and pos is None: break
+
 	# WindowsManager should always stay above the world
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):
 		screen.blit(surface, pos)
@@ -130,9 +149,16 @@ while True:
 	# Present
 	pygame.display.flip()
 
+pManager.release()
+
 for i in pEventList:
 	i.release(wm)
 pEventList = []
+
+if runningNpcEvent.isRunning():
+	runningNpcEvent.release(wm)
+
+uMenu.release(wm)
 
 wm.Release()
 pygame.quit()

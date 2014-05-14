@@ -225,6 +225,9 @@ class PlayerManager(object):
 		def getPlayer(self):
 			return self._player
 
+		def release(self):
+			return self._player.release()
+
 
 class NPCManager(object):
 	# using terrain offsets

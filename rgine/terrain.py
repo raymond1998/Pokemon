@@ -1,10 +1,12 @@
-from common import *
 import os
-import string
+
 import pygame
+
+from common import *
 import exception
 import buildinfo
 from surface_buffer import *
+
 ##if __name__ == "__main__": _version_ = buildinfo.bump("terrain", 1)
 ##else: _version_ = buildinfo.get("terrain")
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -73,7 +75,6 @@ class _terrainBase(object):
 				li.append(bytes([self.getProperty_s(x, y)]))
 		f.write(b''.join(li))
 		return fname
-		
 
 	def readTextureProperty(self, fname):
 		f = open(fname, "rb")
@@ -480,10 +481,9 @@ class _terrainW(_terrainR):
 
 		return t
 
-class AnimatedTerrain():
-	pass
 
-
+# class AnimatedTerrain():
+# 	pass
 
 def _main(): return 0
 if __name__ == "__main__": exit(_main())

@@ -24,6 +24,30 @@ _icon_warning = read_buffer(path+"/res/warning", 128, 128)
 
 pygame.font.init()
 
+def render_text(surfacesize, text, pyFont, *rendering_args):
+	"""
+	Renders text on the specific surface.  Wrap around after width is exceeded.
+	:tuple surfacesize:
+	:str text:
+	:pygame.font.Font pyFont:
+	:list rendering_args:
+	"""
+	rendering_args = list(rendering_args)
+	Surface = pygame.Surface(surfacesize, pygame.SRCALPHA)
+	cx = cy = 0
+	for txt in text.split("\n"):
+		cx = 0
+		for t in txt.split(" "):
+			img = pyFont.render(*([t+" "]+rendering_args))
+			if img.get_width()+cx > surfacesize[0]:
+				cy += pyFont.get_height()
+				if cy > surfacesize[1]: break
+				cx = 0
+			Surface.blit(img, (cx, cy))
+			cx += img.get_width()
+		cy += pyFont.get_height()
+	return Surface
+
 class WindowsMacros(object):
 	# resources
 	button = _button
@@ -486,27 +510,6 @@ class _windowBase(object):
 		"""
 		self._wm.Release()
 
-	@staticmethod
-	def render_text(surfacesize, text, pyFont, *rendering_args):
-		"""
-		Renders text on the specific surface.  Wrap around after width is exceeded.
-		:tuple surfacesize:
-		:str text:
-		:pygame.font.Font pyFont:
-		:list rendering_args:
-		"""
-		rendering_args = list(rendering_args)
-		Surface = pygame.Surface(surfacesize, pygame.SRCALPHA)
-		cx = cy = 0
-		for t in text.split(" "):
-			img = pyFont.render(*([t+" "]+rendering_args))
-			if img.get_width()+cx > surfacesize[0]:
-				cy += img.get_height()
-				if cy > surfacesize[1]: break
-				cx = 0
-			Surface.blit(img, (cx, cy))
-			cx += img.get_width()
-		return Surface
 
 class _windowText(_windowBase):
 	def __init__(self, wsize, winbk=None, *args):
@@ -517,7 +520,7 @@ class _windowText(_windowBase):
 					 *self._rendering_args["font_rendering_args"][1:])
 
 		self.setRenderArgs(*args)
-		self._bk.blit(_windowBase.render_text(*([self._size]+self._args)), (0, 0))
+		self._bk.blit(render_text(*([self._size]+self._args)), (0, 0))
 
 	def setRenderArgs(self, *args):
 		"""
@@ -846,7 +849,7 @@ class _windowMsgbox(_windowFramed):
 
 		self._surface = pygame.Surface((w, h), pygame.SRCALPHA)
 		self._surface.blit(self._icon, (0, 0))
-		text = self.render_text((wsize[0]-64, y-16), " "*8+self._text, self._args[1], *self._args[2:4])
+		text = render_text((wsize[0]-64, y-16), " "*8+self._text, self._args[1], *self._args[2:4])
 		self._surface.blit(text, (64, 16))
 		self._surf = self._surface.copy()
 		self._done = False

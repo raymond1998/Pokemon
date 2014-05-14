@@ -1,7 +1,10 @@
 import random
-from pygame import *
-from resources_loader import *
 import time
+
+from pygame import *
+
+from resources_loader import *
+
 
 _CURRENT_ID = 0
 UP = 0
@@ -50,7 +53,6 @@ class _object(object):
 			y = int(y) + 1
 		self._pos = [x, y]
 
-
 	def render(self, evt):
 		chg = time.clock()-self.lastcall
 		di = self._di
@@ -70,7 +72,6 @@ class _object(object):
 				if self._frame_count == self._endframe:
 					self._walking = False
 					self._pos = self._endpos[:]
-
 
 		if di == UP:
 			return(self._res.back[self._frame_count]), self._pos
@@ -110,6 +111,10 @@ class _object(object):
 	def setPos(self, x, y):
 		self._pos = [x, y]
 		self._endpos = [x, y]
+
+	def release(self):
+		pass
+
 
 class Character(_object):
 	def __init__(self,name,typ,level):
