@@ -409,8 +409,8 @@ class _windowBase(object):
 		self._pos = [0, 0]
 
 		class _WindowsManager(WindowsManager):
-			def __init__(self):
-				super(_WindowsManager, self).__init__()
+			def __init__(self, *args):
+				super(_WindowsManager, self).__init__(*args)
 				self._pos = [0, 0]
 
 			def CreateWindow(self, hClass, args, topmost=True):
@@ -444,7 +444,7 @@ class _windowBase(object):
 			def getPos(self):
 				return self._pos
 
-		self._wm = _WindowsManager()
+		self._wm = _WindowsManager(self._size)
 
 	def init(self, hWnd):
 		"""

@@ -3,6 +3,7 @@ import pygame
 import rgine
 import base as base
 import menu as menu
+import battle as battle
 import ChiangObjectives as character
 
 textureSize = 32
@@ -55,6 +56,7 @@ pEventList = []
 runningNpcEvent = base.NPC(None, None)
 
 uMenu = menu.init_menu(menu.buttons, menu.inst)
+uBattle = battle.Battle()
 
 while True:
 	evt.update()
@@ -72,7 +74,7 @@ while True:
 	pManager.updateEvent(evt, wm)
 	x = y = 0
 
-	if not runningNpcEvent.isRunning():
+	if not runningNpcEvent.isRunning() and not uMenu.isRunning():
 		if evt.isKeyDown(pygame.K_UP) or evt.isKeyDown(pygame.K_w):
 			y -= 1
 		elif evt.isKeyDown(pygame.K_DOWN) or evt.isKeyDown(pygame.K_s):
@@ -82,6 +84,7 @@ while True:
 				x -= 1
 			elif evt.isKeyDown(pygame.K_RIGHT) or evt.isKeyDown(pygame.K_d):
 				x += 1
+
 
 	# check npc event
 	player = pManager.getPlayer()
@@ -142,6 +145,13 @@ while True:
 	surf, pos = uMenu.update(evt, wm)
 	if surf is not None and pos is None: break
 
+	# Battle
+	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
+		uBattle.init(evt, wm)
+	elif evt.isKeyHit(pygame.K_0):
+		uBattle.release(wm)
+	uBattle.render(evt, wm)
+
 	# WindowsManager should always stay above the world
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):
 		screen.blit(surface, pos)
@@ -159,6 +169,7 @@ if runningNpcEvent.isRunning():
 	runningNpcEvent.release(wm)
 
 uMenu.release(wm)
+uBattle.release(wm)
 
 wm.Release()
 pygame.quit()

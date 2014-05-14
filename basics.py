@@ -43,7 +43,7 @@ def approx(a, b):
 
 class pEvent(object):
 	def __init__(self, *args):
-		pass
+		self._activated = False
 
 	def init(self, evt, wm):
 		"""
@@ -71,7 +71,9 @@ class pEvent(object):
 		:rgine.windows.WindowsManager wm:
 		"""
 		pass
-
+	
+	def isRunning(self):
+		return self._activated
 
 class NPC(pEvent):
 	# npcs are events
@@ -81,7 +83,6 @@ class NPC(pEvent):
 		super(NPC, self).__init__()
 		self._pos = pos
 		self._res = res_walk
-		self._activated = False
 		self._dir = 1
 
 	def init(self, evt, wm):
@@ -121,9 +122,6 @@ class NPC(pEvent):
 
 	def setPos(self, pos):
 		self._pos = pos
-
-	def isRunning(self):
-		return self._activated
 
 	def chgDir(self, dir_val):
 		self._dir = dir_val

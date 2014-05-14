@@ -113,7 +113,10 @@ class MenuManager(object):
 			self._pEvents[self._runningEvt].release(wm)
 			self._runningEvt = None
 
+	def isRunning(self):
+		return self._mMain.isRunning()
 
+	
 def init_menu(d_buttons, d_pEvents):
 	r = MenuManager(d_buttons)
 	r.register_dict(d_pEvents)
