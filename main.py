@@ -153,6 +153,7 @@ while True:
 
 	# Battle
 	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
+		# uBattle.setFightingObjects(None, None)
 		uBattle.init(evt, wm)
 	elif evt.isKeyHit(pygame.K_0):
 		uBattle.release(wm)

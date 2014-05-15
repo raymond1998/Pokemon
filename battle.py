@@ -73,7 +73,7 @@ class choice2(choice1):
 		cy = 0
 		x, y = self._wm.screensize
 
-		button_size = self.wmacros.button_size[0]//2, self.wmacros.button_size[1]//2
+		button_size = self.wmacros.button_size[0]*2//3, self.wmacros.button_size[1]*2//3
 		button_surf = pygame.transform.scale(self.wmacros.button.copy(), button_size)
 		pygame.draw.rect(button_surf, (0, 0, 0), button_surf.get_rect(), 1)
 
@@ -109,18 +109,30 @@ class Battle(pEvent):
 		self._scene = -1
 		self._activated = False
 		self._hWnds = {}
+		self._atk = None
+		self._def = None
+
+	def setFightingObjects(self, atk, defense):
+		if atk is not None: self._atk = atk
+		if defense is not None: self._def = defense
 
 	def init(self, evt, wm):
 		if not self._activated:
+			atk, defense = self._atk, self._def
+			if atk is None or defense is None: raise ValueError((atk, defense))
 			self._activated = True
-			
+
 			def init(self, hWnd):
+				nonlocal atk, defense
 				self.wmacros = rgine.windows.WindowsMacros()
 				self._handle = hWnd
 				self._umsg = 0
 				w, h = self._size
 				self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
 				self._hWnds = {}
+
+				self._atk = atk
+				self._def = defense
 
 				def c_choice1(self):
 					winsize = 16*12, 16*8
@@ -143,12 +155,12 @@ class Battle(pEvent):
 					self._wm.MoveWindow(self._hWnds["choice2"], (x-winsize[0])*1//10, (y-winsize[1])*9.5//10)
 
 				self._init_choice2 = c_choice2
-				# self._wm.SetTopmost(self._hWnds["choice1"], True)
 
 				self._hWnds["choice1"] = 0
 				self._hWnds["choice2"] = 0
 
 				self._init_choice1(self)
+				self._wm.SetTopmost(self._hWnds["choice1"], True)
 				return True
 
 
