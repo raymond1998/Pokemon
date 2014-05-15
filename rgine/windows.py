@@ -12,7 +12,10 @@ __author__ = "Charles-Jianye Chen"
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 _icon_x = read_buffer(path+"/x", 128, 128)
 _button_size = [158, 59]
-_button = read_buffer(path+"/button", _button_size[0], _button_size[1])
+# _button = read_buffer(path+"/button", _button_size[0], _button_size[1])
+_button = pygame.Surface(_button_size, pygame.SRCALPHA)
+_button.fill((43, 43, 43, 255//2))
+# pygame.draw.rect(_button, (0, 0, 0), _button.get_rect(), 1)
 _button_res_focus = pygame.Surface(_button_size, pygame.SRCALPHA)
 _button_res_focus.fill((111, 111, 111, 60))
 _button_res_down = pygame.Surface(_button_size, pygame.SRCALPHA)
@@ -367,6 +370,12 @@ class WindowsManager(object):
 		if hWnd in self._current["layer"]:
 			return self._windows[hWnd].getMsg()
 		return None
+
+	def getInstance(self, hWnd):
+		if hWnd in self._current["layer"]:
+			return self._windows[hWnd]
+		return None
+
 
 class _windowBase(object):
 	NO_FOCUS = 0

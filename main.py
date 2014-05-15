@@ -21,8 +21,11 @@ ctypes.windll.user32.MessageBoxW(0, "Close this window to run. ", "Run", 0)
 intro_text = rgine.windows.render_text\
 	(
 			ScreenSize,
-		    "CLOSE THIS WINDOW TO RUN!  \n"
-			"Hit SPACE to show menu.  \n",
+		    "CLOSE THIS WINDOW TO RUN!  \n\n"
+			"Hit SPACE to show menu.  \n"
+			"W, A, S, D: Directions.  \n"
+			"Tab: Switch Option (msgbox).  \n"
+			"Enter: Confirm the topmost button.  \n",
 		    pygame.font.SysFont('Times New Romen', 16),
 		    True, (255, 255, 255)
 	)
@@ -58,6 +61,9 @@ runningNpcEvent = base.NPC(None, None)
 uMenu = menu.init_menu(menu.buttons, menu.inst)
 uBattle = battle.Battle()
 
+import time
+fps = 0
+t = time.clock()
 while True:
 	evt.update()
 	if evt.type == pygame.QUIT: break
@@ -159,6 +165,11 @@ while True:
 	# Present
 	pygame.display.flip()
 
+	fps += 1
+	if time.clock() - t >= 1:
+		print(fps/(time.clock()-t))
+		fps = 0
+		t = time.clock()
 pManager.release()
 
 for i in pEventList:
