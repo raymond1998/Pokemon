@@ -1,11 +1,9 @@
 import random
-import time
+import time as TIME
 
 from pygame import *
 
 from resources_loader import *
-
-
 
 
 
@@ -37,8 +35,8 @@ class _object(object):
 		self._endframe = 1
 		self._frame_count = self._endframe
 		self._di = DOWN
-		self.lastcall = time.clock()
-		self.lastcall_pos = time.clock()
+		self.lastcall = TIME.clock()
+		self.lastcall_pos = TIME.clock()
 		self._walking = False
 		self._poschg = []
 		self._endpos = self._pos[:]
@@ -58,7 +56,7 @@ class _object(object):
 		self._pos = [x, y]
 
 	def render(self, evt):
-		chg = time.clock()-self.lastcall
+		chg = TIME.clock()-self.lastcall
 		di = self._di
 
 		if self._walking:
@@ -67,7 +65,7 @@ class _object(object):
 			# 	self._pos[0] += self._poschg[0]*3/32
 			# 	self._pos[1] += self._poschg[1]*3/32
 			if chg > 1/3/10:    # 1/3/6 is good for slow speed
-				self.lastcall = time.clock()
+				self.lastcall = TIME.clock()
 				# self.lastcall_pos = time.clock()
 				self._pos[0] += self._poschg[0]
 				self._pos[1] += self._poschg[1]
@@ -93,8 +91,8 @@ class _object(object):
 		if self._walking or x==y==0: return False
 
 		self._walking = True
-		self.lastcall = time.clock()
-		self.lastcall_pos = time.clock()
+		self.lastcall = TIME.clock()
+		self.lastcall_pos = TIME.clock()
 
 		self._poschg = [x/3, y/3]
 		self._endpos = self._pos[0]+x, self._pos[1]+y
