@@ -10,7 +10,7 @@ class choice1(object):
 		self._hasresult = False
 		x, y, w, h = self.getRect()
 		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
-		self._buttons = {0: "ATTACK", 1: "SKILLS", 2:"BACKPACK", 3:"ESCAPE"}
+		self._buttons = {0: "ATTACK", 1: "BAG", 2:"POKEMON", 3:"RUN"}
 		self._hWnds = {}
 		cy = 0
 		x, y = self._wm.screensize
@@ -68,7 +68,8 @@ class choice2(choice1):
 		self._hasresult = False
 		x, y, w, h = self.getRect()
 		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
-		self._buttons = {0: "Skill 0", 1: "Skill 1", 2:"Skill 2", 3:"Skill 3"}
+		print(self._args)
+		self._buttons = ["Skill 0", "Skill 1", "Skill 2", "Skill 3"]
 		self._hWnds = {}
 		cy = 0
 		x, y = self._wm.screensize
@@ -78,7 +79,7 @@ class choice2(choice1):
 		pygame.draw.rect(button_surf, (0, 0, 0), button_surf.get_rect(), 1)
 
 		t_handles = []
-		for i in self._buttons:
+		for i in range(len(self._buttons)):
 			h = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
 							    (button_size, button_surf, "%s"%self._buttons[i],
 												pygame.font.SysFont('Times New Romen', 16),
@@ -119,7 +120,7 @@ class Battle(pEvent):
 	def init(self, evt, wm):
 		if not self._activated:
 			atk, defense = self._atk, self._def
-			if atk is None or defense is None: raise ValueError((atk, defense))
+			#if atk is None or defense is None: raise ValueError((atk, defense))
 			self._activated = True
 
 			def init(self, hWnd):
@@ -148,7 +149,7 @@ class Battle(pEvent):
 					winsize = 16*30, 16*8
 					self._hWnds["choice2"] = self._wm.CreateWindow(
 						self._wm.RegisterClass(False, choice2.init, choice2.cb, choice2.rd, choice2.getMsg, choice2.rel),
-						(winsize, None)
+						(winsize, None, {})
 						)
 
 					x, y = self._wm.screensize
@@ -172,10 +173,11 @@ class Battle(pEvent):
 						r, msg = msg
 						if not r: continue
 						if msg == 0:
-							self._wm.DestroyWindow(self._hWnds["choice1"])
-						elif msg == 1:
 							self._init_choice2(self)
 							self._wm.SetTopmost(self._hWnds["choice2"], True)
+							# self._wm.DestroyWindow(self._hWnds["choice1"])
+						elif msg == 1:
+							pass
 						elif msg == 2:
 							pass
 						elif msg == 3:
@@ -210,7 +212,7 @@ class Battle(pEvent):
 				)
 			x, y = wm.screensize
 			wm.MoveWindow(self._scene, (x-winsize[0])//2, (y-winsize[1])//2)
-			
+
 			return True
 		return False
 

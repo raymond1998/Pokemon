@@ -154,6 +154,7 @@ class WindowsManager(object):
 			class _WinClass(_windowBase):
 				def __init__(self, winsize, winbk=None, *args):
 					super(_WinClass, self).__init__(winsize, winbk)
+					self.setRenderArgs(*args)
 
 			if init is not None: _WinClass.init = init
 			if callback is not None: _WinClass.callback = callback
