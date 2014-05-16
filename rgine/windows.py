@@ -377,6 +377,11 @@ class WindowsManager(object):
 			return self._windows[hWnd]
 		return None
 
+	def isWindowPresent(self, hWnd):
+		if hWnd in self._current["layer"]:
+			return True
+		return False
+
 
 class _windowBase(object):
 	NO_FOCUS = 0

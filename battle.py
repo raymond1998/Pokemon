@@ -1,5 +1,8 @@
+import time
+
 from basics import *
 from resources_loader import *
+
 __author__ = 'Charles-Jianye Chen'
 
 class choice1(object):
@@ -103,6 +106,35 @@ class choice2(choice1):
 				self._hasresult = True
 		return True
 
+class BattleProcedure(object):
+	# procedure:
+	#   0:  not used
+	#   1:  init
+	#   2:  ui->wait for operation
+	#   3:  attack
+	#   4:  backpack
+	#   5:  run
+	#   6:  defend
+	#   7:  death->player
+	#   8:  death->enemy
+	#   9:  exp change
+	#   10: level change
+	#   11: next pokemon (player)
+	#   12: next pokemon (enemy)
+	#   13: release
+	def __init__(self, winsize):
+		self._surface = pygame.Surface(winsize, pygame.SRCALPHA)
+		self._timer = time.clock()
+		self._uistatus = [False, False]
+
+	def isUIPresent(self):
+		return self._uistatus
+
+	def callback(self):
+		pass
+
+	def render(self, surface):
+		surface.blit(self._surface, (0, 0))
 
 class Battle(pEvent):
 	def __init__(self):
