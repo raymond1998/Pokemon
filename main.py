@@ -5,6 +5,7 @@ import base as base
 import menu as menu
 import battle as battle
 import ChiangObjectives as character
+import Combinedv2 as libpkmon
 
 textureSize = 32
 ScreenSize = list(map(int, (16*textureSize*1.5, 9*textureSize*1.5)))
@@ -153,7 +154,11 @@ while True:
 
 	# Battle
 	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
-		# uBattle.setFightingObjects(None, None)
+		t1 = libpkmon.Pokemon()
+		t1.load(100, 5000)
+		t2 = libpkmon.Pokemon()
+		t2.load(129, 500*9)
+		uBattle.setFightingObjects(t1, t2)
 		uBattle.init(evt, wm)
 	elif evt.isKeyHit(pygame.K_0):
 		uBattle.release(wm)

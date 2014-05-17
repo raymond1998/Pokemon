@@ -106,7 +106,7 @@ class choice2(choice1):
 		return True
 
 
-class uiStatus(object):
+class uiStatus(choice1):
 	def init(self, hWnd):
 		self.wmacros = rgine.windows.WindowsMacros()
 		self._handle = hWnd
@@ -121,21 +121,27 @@ class uiStatus(object):
 		x, y = self._wm.screensize
 		px, py = 100, 25
 		self._pgbar_hp = rgine.Progressbar((px, py), (255, 0, 0), 5, 0, 0)
-		self._render_pgbar_hp = lambda pgbar: (pgbar.render(), (x-px)//2, (y-py)*7//10)
+		self._render_pgbar_hp = lambda pgbar: (pgbar.render(), ((x-px)//2, (y-py)*7//10))
 		px, py = 100, 25
 		self._pgbar_exp = rgine.Progressbar((px, py), (0, 255, 0), 5, 0, 0)
-		self._render_pgbar_exp = lambda pgbar: (pgbar.render(), (x-px)//2, (y-py)*9//10)
+		self._render_pgbar_exp = lambda pgbar: (pgbar.render(), ((x-px)//2, (y-py)*9//10))
 		return True
 
 	def cb(self, event, uMsg):
+		return True
+
+	def rd(self):
 		self._bk_.fill((255, 255, 255, 255//2))
-		self._pgbar.set_pos(self._owner.get_hp_percentage())
-		for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
-			self._bk_.blit(surface, pos)
+		self._pgbar_hp.set_pos(self._owner.get_hp_percentage())
+		print("hp percentage:", self._owner.get_hp_percentage(), "%",
+		      "hp:", self._owner.getHP(),
+		      "pokemon id:", self._owner.getID())
+		# for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
+		# 	self._bk_.blit(surface, pos)
 
 		self._bk_.blit(*self._render_pgbar_hp(self._pgbar_hp))
 		self._bk_.blit(*self._render_pgbar_exp(self._pgbar_exp))
-		return True
+		return self._bk_
 
 
 class BattleProcedure(object):
@@ -217,6 +223,24 @@ class Battle(pEvent):
 				self._atk = atk
 				self._def = defense
 
+				winsize = 16*10, 9*10
+				self._hWnds["uistatus_atk"] = self._wm.CreateWindow(
+					self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
+					(winsize, None, self._atk)
+					)
+
+				x, y = self._wm.screensize
+				self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, 0)
+
+				winsize = 16*10, 9*10
+				self._hWnds["uistatus_def"] = self._wm.CreateWindow(
+					self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
+					(winsize, None, self._def)
+					)
+
+				x, y = self._wm.screensize
+				self._wm.MoveWindow(self._hWnds["uistatus_def"], 200, 200)
+
 				def c_choice1(self):
 					winsize = 16*12, 16*8
 					self._hWnds["choice1"] = self._wm.CreateWindow(
@@ -245,7 +269,7 @@ class Battle(pEvent):
 				self._init_choice1(self)
 				self._wm.SetTopmost(self._hWnds["choice1"], True)
 
-				self._proc = BattleProcedure(self._wm.screensize, self._atk, self._defense)
+				# self._proc = BattleProcedure(self._wm.screensize, self._atk, self._defense)
 				return True
 
 

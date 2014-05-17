@@ -584,6 +584,7 @@ class Pokemon(object):
         self.type1=PokeStat[identifer][1][0]
         self.type2=PokeStat[identifer][1][-1]
         self.hp=self.level*4
+        self.maxhp = self.level*4
         self.skill=PokeStat[self.ID][4][:]
 ##        self.image = pygame.image.load(path+"/resources/pokemon/ordered_images/%d.png"%self.ID).convert_alpha()
         
@@ -625,6 +626,7 @@ class Pokemon(object):
                             1)
             if not self.getSkillP(skillno): damage = 0
             other.hp -= damage
+            if other.hp < 0: other.hp = 0
             return damage
         elif accCheck>=accCheckv:
             return 0
@@ -636,7 +638,7 @@ class Pokemon(object):
         return self.image
     
     def get_hp_percentage(self):
-        return self.hp//self.level*4
+        return (self.hp/self.maxhp)*100
 
 ##print(userattack)
 ##print((Damage((trunc(UserPoke[0][2][0]/500)),\
