@@ -25,7 +25,7 @@ class choice1(object):
 		t_handles = []
 		for i in self._buttons:
 			h = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
-							    (button_size, button_surf, "%s"%self._buttons[i],
+								(button_size, button_surf, "%s"%self._buttons[i],
 												pygame.font.SysFont('Times New Romen', 16),
 												True, (255, 255, 255)), True)
 			t_handles.append(h)
@@ -71,8 +71,7 @@ class choice2(choice1):
 		self._hasresult = False
 		x, y, w, h = self.getRect()
 		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
-		print(self._args)
-		self._buttons = ["Skill 0", "Skill 1", "Skill 2", "Skill 3"]
+		self._buttons = self._args[0]
 		self._hWnds = {}
 		cy = 0
 		x, y = self._wm.screensize
@@ -84,7 +83,7 @@ class choice2(choice1):
 		t_handles = []
 		for i in range(len(self._buttons)):
 			h = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
-							    (button_size, button_surf, "%s"%self._buttons[i],
+								(button_size, button_surf, "%s"%self._buttons[i],
 												pygame.font.SysFont('Times New Romen', 16),
 												True, (255, 255, 255)), True)
 			t_handles.append(h)
@@ -106,6 +105,39 @@ class choice2(choice1):
 				self._hasresult = True
 		return True
 
+
+class uiStatus(object):
+	def init(self, hWnd):
+		self.wmacros = rgine.windows.WindowsMacros()
+		self._handle = hWnd
+		self._umsg = 0
+		self._hasresult = False
+		x, y, w, h = self.getRect()
+		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
+		# self._buttons = self._args[0]
+		self._owner = self._args[0]
+		self._hWnds = {}
+		cy = 0
+		x, y = self._wm.screensize
+		px, py = 100, 25
+		self._pgbar_hp = rgine.Progressbar((px, py), (255, 0, 0), 5, 0, 0)
+		self._render_pgbar_hp = lambda pgbar: (pgbar.render(), (x-px)//2, (y-py)*7//10)
+		px, py = 100, 25
+		self._pgbar_exp = rgine.Progressbar((px, py), (0, 255, 0), 5, 0, 0)
+		self._render_pgbar_exp = lambda pgbar: (pgbar.render(), (x-px)//2, (y-py)*9//10)
+		return True
+
+	def cb(self, event, uMsg):
+		self._bk_.fill((255, 255, 255, 255//2))
+		self._pgbar.set_pos(self._owner.get_hp_percentage())
+		for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
+			self._bk_.blit(surface, pos)
+
+		self._bk_.blit(*self._render_pgbar_hp(self._pgbar_hp))
+		self._bk_.blit(*self._render_pgbar_exp(self._pgbar_exp))
+		return True
+
+
 class BattleProcedure(object):
 	# procedure:
 	#   0:  not used
@@ -122,19 +154,37 @@ class BattleProcedure(object):
 	#   11: next pokemon (player)
 	#   12: next pokemon (enemy)
 	#   13: release
-	def __init__(self, winsize):
+	def __init__(self, winsize, atk, defense):
 		self._surface = pygame.Surface(winsize, pygame.SRCALPHA)
 		self._timer = time.clock()
 		self._uistatus = [False, False]
+		self._procedure = 0
+		self._atk = atk
+		self._def = defense
+		
+	def init(self):
+		self._procedure = 1
+		self._surface.fill((0, 0, 0))
 
 	def isUIPresent(self):
 		return self._uistatus
 
 	def callback(self):
-		pass
+		self._surface.fill((0, 0, 0))
+##		t = time.clock()
+##		t_tme = (t - self._timer)
+		if self._procedure == 1:
+			b = self.proc_1
+			if not b: self._procedure = 2
 
 	def render(self, surface):
 		surface.blit(self._surface, (0, 0))
+
+	def proc_1(self):
+		t = time.clock()
+		t_tme = t - self._timer
+
+		
 
 class Battle(pEvent):
 	def __init__(self):
@@ -181,7 +231,7 @@ class Battle(pEvent):
 					winsize = 16*30, 16*8
 					self._hWnds["choice2"] = self._wm.CreateWindow(
 						self._wm.RegisterClass(False, choice2.init, choice2.cb, choice2.rd, choice2.getMsg, choice2.rel),
-						(winsize, None, {})
+						(winsize, None, ["Skill 0", "Skill 1", "Skill 2", "Skill 3"])
 						)
 
 					x, y = self._wm.screensize
@@ -194,6 +244,8 @@ class Battle(pEvent):
 
 				self._init_choice1(self)
 				self._wm.SetTopmost(self._hWnds["choice1"], True)
+
+				self._proc = BattleProcedure(self._wm.screensize, self._atk, self._defense)
 				return True
 
 
@@ -217,14 +269,14 @@ class Battle(pEvent):
 					if hWnd == self._hWnds["choice2"]:
 						r, msg = msg
 						if not r: continue
-						if msg == 0:
-							pass
-						elif msg == 1:
-							pass
-						elif msg == 2:
-							pass
-						elif msg == 3:
-							pass
+##						if msg == 0:
+						self._atk.attack(self._def, msg)
+##						elif msg == 1:
+##                                                        pass
+##						elif msg == 2:
+##							pass
+##						elif msg == 3:
+##							pass
 						self._wm.DestroyWindow(self._hWnds["choice1"])
 						self._wm.DestroyWindow(self._hWnds["choice2"])
 				return True
