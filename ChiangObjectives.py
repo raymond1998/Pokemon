@@ -8,6 +8,7 @@ from resources_loader import *
 
 
 
+
 _CURRENT_ID = 0
 UP = 0
 DOWN = 1
@@ -153,7 +154,7 @@ class Pokemon(Character):
 		self.hp=self.hp-dmgDelt
 		return self.hp
 
-	def isAlive(hp):
+	def isAlive(self, hp):
 		if hp==0:
 			return False
 		else:
@@ -172,9 +173,9 @@ class Player(Character):
 			self.pokemon.append(pokemons)
 		for item in items:
 			self.backpack.append(item)
-	def addItem(item):
+	def addItem(self, item):
 		self.backpack.append(item)
-	def delItem(item):
+	def delItem(self, item):
 		self.backpack.remove(item)
 
 class NPC(Character):

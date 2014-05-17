@@ -446,8 +446,8 @@ class _windowBase(object):
 			def DispatchMessage(self, _RgineEvent):
 				for hWnd, uMsg, surface, pos in super(_WindowsManager, self).DispatchMessage(_RgineEvent):
 					yield hWnd, uMsg, surface, \
-					      (self._windows[hWnd].getPos()[0] - self._pos[0],
-					       self._windows[hWnd].getPos()[1] - self._pos[1])
+						  (self._windows[hWnd].getPos()[0] - self._pos[0],
+						   self._windows[hWnd].getPos()[1] - self._pos[1])
 
 			def MoveObject(self, x, y):
 				self._pos[0] += x
