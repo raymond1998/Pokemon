@@ -155,7 +155,7 @@ while True:
 	# Battle
 	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
 		t1 = libpkmon.Pokemon()
-		t1.load(80, 5000+400)
+		t1.load(4, 5000+400)
 		t2 = libpkmon.Pokemon()
 		t2.load(1, 500*9+300)
 		uBattle.setFightingObjects(t1, t2)

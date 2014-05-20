@@ -9,6 +9,7 @@ from resources_loader import *
 
 
 
+
 _CURRENT_ID = 0
 UP = 0
 DOWN = 1
@@ -170,7 +171,7 @@ class Player(Character):
 		self.backpack=[]
 
 		for pokemon in pokemons:
-			self.pokemon.append(pokemons)
+			self.pokemon.append(pokemon)
 		for item in items:
 			self.backpack.append(item)
 	def addItem(self, item):

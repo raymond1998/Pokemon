@@ -4,6 +4,7 @@ from random import *
 
 import pygame
 
+
 ##import rgine
 
 import sys
@@ -74,7 +75,6 @@ def PokeType(code):
 		return PokeStat[code][2][0],PokeStat[number][1][1]
 
 def Pokelevel(name):
-  
 	for i in range (len(UserPoke)):
 		print(UserPoke[i][0][0])
 		if UserPoke[i][0][0]==name:
@@ -292,11 +292,10 @@ attack={
 		"Dragon_Pulse":[["Dra"],[[85],[100],[10]],[None]],
 		"Dragon_Rush ":[["Dra"],[[100],[75],[10]],["Flinch",1/5]],
 		"Twister":[["Dra"],[[50],[90],[20]],[None]],
-		"Beat_Up":[["Dra"],[[40],[100],[20]],["Flinch",1/5]],
+
 		"Discharge":[["Ele"],[[80],[100],[15]],["Para",3/10]],
 		"Electro_Ball":[["Ele"],[[60],[100],[20]],[None]],
 		"Zap_Cannon":[["Ele"],[[120],[50],[5]],["Para",1]],
-
 		"Thunder":[["Ele"],[[110],[70],[10]],["Para",3/10]],
 		"Electro_Web":[["Ele"],[[55],[95],[15]],[None]],
 		"Thunder_Wave":[["Ele"],[[0],[100],[20]],["Para",1]],
@@ -343,6 +342,7 @@ attack={
 		"Blue_Flare":[["Fir"],[[130],[85],[5]],["Burn",1/5]],
 		"Heat_Wave":[["Fir"],[[95],[90],[10]],["Burn",1/10]],
 		"Fire_Spin":[["Fir"],[[35],[85],[15]],["Trap"]],
+        "Ember":[["Fir"],[[40],[100],[25]],["Burn",1/10]],
 
 		"Air_Cutter":[["Fly"],[[60],[95],[25]],["HighCrit"]],
 		"Acrobatics":[["Fly"],[[55],[100],[15]],[None]],
@@ -466,7 +466,6 @@ attack={
 		"Sonicboom":[["Nor"],[[0],[90],[20]],["SetDamage",20]],
 		"Rapid_Spin":[["Nor"],[[20],[100],[40]],[None]],
 		"Rest":[["Nor"],[[0],[0],[10]],["Rest"]],
-		"Vicegrip":[["Nor"],[[55],[100],[30]],[None]],
 		"Yawn":[["Nor"],[[0],[0],[10]],["Sleep"]],
 		"Hyper_Fang":[["Nor"],[[80],[90],[15]],["Flinch",1/10]],
 		"Vicegrip":[["Nor"],[[55],[100],[30]],[None]],
@@ -540,7 +539,8 @@ attack={
 
 
 def Damage(Level,BaseP,SpAtk,SpDef,r,STAB,Weakness,CH):
-	DamageDelt=(trunc(((trunc(trunc((((trunc((trunc(((Level*2)/5)+2))*BaseP*SpAtk/50)/77))+2)*CH*r/100)))*STAB)*Weakness))
+	DamageDelt=(trunc(((trunc(trunc((((trunc((trunc(((
+	                                                 Level*2)/5)+2))*BaseP*SpAtk/50)/SpDef))+2)*CH*r/100)))*STAB)*Weakness))
 	return DamageDelt
 
 ##print(Damage((trunc(UserPoke[0][2][0]/500)),\
