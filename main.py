@@ -155,14 +155,22 @@ while True:
 	# Battle
 	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
 		t1 = libpkmon.Pokemon()
-		t1.load(100, 5000)
+		t1.load(80, 5000+400)
 		t2 = libpkmon.Pokemon()
-		t2.load(129, 500*9)
+		t2.load(1, 500*9+300)
 		uBattle.setFightingObjects(t1, t2)
 		uBattle.init(evt, wm)
 	elif evt.isKeyHit(pygame.K_0):
 		uBattle.release(wm)
-	uBattle.render(evt, wm)
+	result = uBattle.render(evt, wm)[1]
+	if result is not None and result != 0:
+		if result == battle.ATK:
+			print("Winner: ATK, %s"%uBattle._atk.getName())
+		elif result == battle.DEF:
+			print("Winner: DEF, %s"%uBattle._def.getName())
+		else:
+			raise ValueError(result)
+		uBattle.release(wm)
 
 	# WindowsManager should always stay above the world
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):

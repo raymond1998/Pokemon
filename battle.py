@@ -5,6 +5,9 @@ from resources_loader import *
 
 __author__ = 'Charles-Jianye Chen'
 
+ATK = 1
+DEF = 2
+
 class choice1(object):
 	def init(self, hWnd):
 		self.wmacros = rgine.windows.WindowsMacros()
@@ -98,6 +101,10 @@ class choice2(choice1):
 
 	def cb(self, event, uMsg):
 		self._bk_.fill((255, 255, 255, 255//2))
+		if event.isKeyHit(pygame.K_ESCAPE):
+			self._umsg = -1
+			self._hasresult = True
+			return True
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 			self._bk_.blit(surface, pos)
 			if msg == self.wmacros.HIT and hWnd in self._hWnds:
@@ -121,10 +128,11 @@ class uiStatus(choice1):
 		x, y = self._wm.screensize
 		px, py = 100, 25
 		self._pgbar_hp = rgine.Progressbar((px, py), (255, 0, 0), 5, 0, 0)
-		self._render_pgbar_hp = lambda pgbar: (pgbar.render(), ((x-px)//2, (y-py)*7//10))
-		px, py = 100, 25
+		self._render_pgbar_hp = lambda pgbar: (pgbar.render(), ((x-px)//2, (y-py)*5//10))
+		px, py = 100, 10
 		self._pgbar_exp = rgine.Progressbar((px, py), (0, 255, 0), 5, 0, 0)
 		self._render_pgbar_exp = lambda pgbar: (pgbar.render(), ((x-px)//2, (y-py)*9//10))
+		self._ft = pygame.font.SysFont('Times New Romen', 16)
 		return True
 
 	def cb(self, event, uMsg):
@@ -133,6 +141,7 @@ class uiStatus(choice1):
 	def rd(self):
 		self._bk_.fill((255, 255, 255, 255//2))
 		self._pgbar_hp.set_pos(self._owner.get_hp_percentage())
+		self._pgbar_exp.set_pos(self._owner.get_exp_percentage())
 		print("hp percentage:", self._owner.get_hp_percentage(), "%",
 		      "hp:", self._owner.getHP(),
 		      "pokemon id:", self._owner.getID())
@@ -141,6 +150,10 @@ class uiStatus(choice1):
 
 		self._bk_.blit(*self._render_pgbar_hp(self._pgbar_hp))
 		self._bk_.blit(*self._render_pgbar_exp(self._pgbar_exp))
+		self._bk_.blit(
+			self._ft.render(self._owner.getName()+"  Lv. %d"%self._owner.get_level(), True, (255, 255, 255)),
+			(0, 0),
+		)
 		return self._bk_
 
 
@@ -230,6 +243,7 @@ class Battle(pEvent):
 					)
 
 				x, y = self._wm.screensize
+				# self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, y-winsize[1])
 				self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, 0)
 
 				winsize = 16*10, 9*10
@@ -239,7 +253,8 @@ class Battle(pEvent):
 					)
 
 				x, y = self._wm.screensize
-				self._wm.MoveWindow(self._hWnds["uistatus_def"], 200, 200)
+				self._wm.MoveWindow(self._hWnds["uistatus_def"], x-winsize[0], 0)
+				# self._wm.MoveWindow(self._hWnds["uistatus_def"], 0, 0)
 
 				def c_choice1(self):
 					winsize = 16*12, 16*8
@@ -255,7 +270,7 @@ class Battle(pEvent):
 					winsize = 16*30, 16*8
 					self._hWnds["choice2"] = self._wm.CreateWindow(
 						self._wm.RegisterClass(False, choice2.init, choice2.cb, choice2.rd, choice2.getMsg, choice2.rel),
-						(winsize, None, ["Skill 0", "Skill 1", "Skill 2", "Skill 3"])
+						(winsize, None, self._atk.getSkills())
 						)
 
 					x, y = self._wm.screensize
@@ -270,11 +285,28 @@ class Battle(pEvent):
 				self._wm.SetTopmost(self._hWnds["choice1"], True)
 
 				# self._proc = BattleProcedure(self._wm.screensize, self._atk, self._defense)
+				self._uiRunning = True
 				return True
 
 
 			def cb(self, event, uMsg):
 				self._bk_.fill((150, 150, 150, 255//2))
+				x, y = self._wm.screensize
+				self._bk_.blit(self._atk.render(False), (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
+				# t = pygame.Surface((self._atk.get_size()), pygame.SRCALPHA)
+				# pygame.draw.rect(t, (255, 0, 0), t.get_rect(), 1)
+				# self._bk_.blit(t, (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
+				self._bk_.blit(self._def.render(True), (x-160-self._atk.get_size()[0], 0))
+				if not self._uiRunning:
+					import random
+					ski = random.randint(0, 3)
+					self._def.attack(self._atk, ski)
+					if not self._atk.getHP():
+						self._umsg = DEF
+						return True
+					self._uiRunning = True
+					self._init_choice1(self)
+
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)
 					if hWnd  == self._hWnds["choice1"]:
@@ -283,26 +315,32 @@ class Battle(pEvent):
 						if msg == 0:
 							self._init_choice2(self)
 							self._wm.SetTopmost(self._hWnds["choice2"], True)
-							# self._wm.DestroyWindow(self._hWnds["choice1"])
+							self._uiRunning = True
 						elif msg == 1:
 							pass
 						elif msg == 2:
 							pass
 						elif msg == 3:
-							pass
+							self._uiRunning = False
+							return False
 					if hWnd == self._hWnds["choice2"]:
 						r, msg = msg
 						if not r: continue
-##						if msg == 0:
-						self._atk.attack(self._def, msg)
-##						elif msg == 1:
-##                                                        pass
-##						elif msg == 2:
-##							pass
-##						elif msg == 3:
-##							pass
-						self._wm.DestroyWindow(self._hWnds["choice1"])
-						self._wm.DestroyWindow(self._hWnds["choice2"])
+						if msg == -1:   # return to choice 1 menu
+							tpmst = self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().GetTopmost()
+							self._wm.DestroyWindow(self._hWnds["choice1"])
+							self._wm.DestroyWindow(self._hWnds["choice2"])
+							self._init_choice1(self)
+							self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().SetTopmost(tpmst)
+							self._uiRunning = True
+						else:
+							self._atk.attack(self._def, msg)
+							if not self._def.getHP():
+								self._umsg = ATK
+								return True
+							self._wm.DestroyWindow(self._hWnds["choice1"])
+							self._wm.DestroyWindow(self._hWnds["choice2"])
+							self._uiRunning = False
 				return True
 
 			def rd(self):
@@ -326,8 +364,11 @@ class Battle(pEvent):
 
 	def render(self, evt, wm):
 		if self._activated:
-			umsg = wm.getMsg(self._scene)
-			return None, umsg
+			if wm.getInstance(self._scene) is None:
+				self.release(wm)
+			else:
+				umsg = wm.getMsg(self._scene)
+				return None, umsg
 		return None, None
 
 	def release(self, wm):

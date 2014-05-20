@@ -392,6 +392,9 @@ class _windowBase(object):
 	_rendering_args = _default_rendering_args.copy()
 	_frame_args = _default_frame_args.copy()
 
+	def getWindowsManager(self):
+		return self._wm
+
 	def getClientRect(self):
 		x, y, w, h = self.getRect()
 		return pygame.Rect(0, 0, w-self._frame_args["frameW"]*2,h-self._frame_args["tbH"]-self._frame_args["frameW"])
