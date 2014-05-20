@@ -197,4 +197,5 @@ uMenu.release(wm)
 uBattle.release(wm)
 
 wm.Release()
+
 pygame.quit()
