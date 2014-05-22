@@ -919,12 +919,22 @@ class _windowMsgbox(_windowFramed):
 	def render_(self):
 		return self._surf
 
+
 class _windowEditbox(_windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowEditbox, self).__init__(wsize, winbk)
 
 	def callback(self, RgineEvent, uMsg):
 		pass
+
+
+class _windowTab(_windowBase):
+	def __init__(self, wsize, winbk=None, *args):
+		super(_windowTab, self).__init__(wsize, winbk)
+
+	def callback(self, RgineEvent, uMsg):
+		pass
+
 
 def _main():
 	uin = input("input 'f' or  'F' to see the framed example\ninput anything else to see the unframed example\n-> ")
