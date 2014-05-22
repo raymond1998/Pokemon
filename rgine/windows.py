@@ -938,7 +938,6 @@ class _windowTab(_windowBase):
 		# {button_name: getMsg return}
 		self._buttonsize = self._args[0]
 		self._button_img = self._args[1]
-		self._buttons_li = self._args[2]
 		self._buttons = []
 		self._handle = 0
 		self._surface = pygame.Surface(wsize, pygame.SRCALPHA)
@@ -955,8 +954,7 @@ class _windowTab(_windowBase):
 			(self._wm.CreateWindow(WindowsMacros.WC_BUTTON, (self._buttonsize, self._button_img, x)), val)
 			))
 		cx = 0
-		for i in self._buttons_li:
-			# key, val = i
+		for i in self._args[2]:
 			addbutton(*i)
 			self._wm.MoveWindowToPos(self._buttons[-1][0], cx, 0)
 			cx += self._buttonsize[0]
