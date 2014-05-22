@@ -137,6 +137,17 @@ class WindowsManager(object):
 		self._topmost_lock = False
 		self.screensize = screensize
 
+	def RegisterCompleteClass(self, wClass):
+		"""
+		Returns a handle to the new registered class.
+		:class(der. from windowBase) wClass:
+		:return hClass:
+		"""
+		self._class_id += 1
+		id_ = self._class_id
+		self._classes[id_] = wClass
+		return id_
+
 	def RegisterClass(self, framed=False, init=None, callback=None, render=None, getMsg=None, release=None):
 		"""
 		Returns a handle to the new registeted class.
@@ -153,7 +164,7 @@ class WindowsManager(object):
 		id_ = self._class_id
 
 		if not framed:
-			class _WinClass(_windowBase):
+			class _WinClass(windowBase):
 				def __init__(self, winsize, winbk=None, *args):
 					super(_WinClass, self).__init__(winsize, winbk)
 					self.setRenderArgs(*args)
@@ -165,7 +176,7 @@ class WindowsManager(object):
 			if release is not None: _WinClass.release = release
 			self._classes[id_] = _WinClass
 		else:
-			class _WinClassFramed(_windowFramed):
+			class _WinClassFramed(windowFramed):
 				def __init__(self, winsize, winbk=None, *args):
 					super(_WinClassFramed, self).__init__(winsize, winbk, *args)
 
@@ -385,7 +396,7 @@ class WindowsManager(object):
 		return False
 
 
-class _windowBase(object):
+class windowBase(object):
 	NO_FOCUS = 0
 	FOCUS = 1
 	DOWN = 2
@@ -531,7 +542,7 @@ class _windowBase(object):
 		self._wm.Release()
 
 
-class _windowText(_windowBase):
+class _windowText(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowText, self).__init__(wsize, winbk)
 
@@ -553,7 +564,7 @@ class _windowText(_windowBase):
 	def render(self):
 		return self._bk
 
-class _windowButton(_windowBase):
+class _windowButton(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowButton, self).__init__(wsize, winbk)
 		self._state = 0
@@ -628,13 +639,13 @@ class _windowButton(_windowBase):
 
 		return True
 
-class _windowFramed(_windowBase):
+class windowFramed(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		x, y = wsize
 		x += self._frame_args["frameW"]*2
 		y += (self._frame_args["frameW"]+self._frame_args["tbH"])
 		
-		super(_windowFramed, self).__init__((x, y), None)
+		super(windowFramed, self).__init__((x, y), None)
 		if winbk is None:
 			pass
 		else:
@@ -677,11 +688,11 @@ class _windowFramed(_windowBase):
 		:pygame.font.Font pyFont:
 		:list rendering_args:
 		"""
-		super(_windowFramed, self).setRenderArgs(*args)
+		super(windowFramed, self).setRenderArgs(*args)
 
 
-class _windowFrame(_windowBase):
-	def __init__(self, wsize, frame_args=_windowBase._frame_args, *args):
+class _windowFrame(windowBase):
+	def __init__(self, wsize, frame_args=windowBase._frame_args, *args):
 		self._frame_args = frame_args
 		x, y = wsize
 		x += self._frame_args["frameW"]*2
@@ -773,7 +784,7 @@ class _windowFrame(_windowBase):
 				self._rel = RgineEvent.getMouseRel()
 		return True
 
-class _windowMsgbox(_windowFramed):
+class _windowMsgbox(windowFramed):
 	# frame, icon, text, button
 	# Msgbox Style
 	# Buttons
@@ -922,7 +933,7 @@ class _windowMsgbox(_windowFramed):
 		return self._surf
 
 
-class _windowEditbox(_windowBase):
+class _windowEditbox(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowEditbox, self).__init__(wsize, winbk)
 
@@ -930,7 +941,7 @@ class _windowEditbox(_windowBase):
 		pass
 
 
-class _windowTab(_windowBase):
+class _windowTab(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowTab, self).__init__(wsize, winbk)
 		self.setRenderArgs(*args)
