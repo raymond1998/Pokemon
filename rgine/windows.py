@@ -66,6 +66,7 @@ class WindowsMacros(object):
 	WC_BUTTON = 1
 	WC_FRAME = 2
 	WC_MSGBOX = 3
+	WC_TAB = 4
 
 	# WinClass
 	NO_FOCUS = 0
@@ -127,7 +128,8 @@ class WindowsManager(object):
 		self._classes = {0: _windowText,
 						 1: _windowButton,
 						 2: _windowFrame,
-						 3: _windowMsgbox}
+						 3: _windowMsgbox,
+						 4: _windowTab}
 		self._class_id = 9
 		self._windows = {}
 		self._window_id = 9
@@ -598,9 +600,9 @@ class _windowButton(_windowBase):
 		return self._state
 
 	def callback(self, RgineEvent, uMsg):
-		if uMsg == WindowsManager.WM_SETFOCUS:
+		if uMsg == WindowsMacros.WM_SETFOCUS:
 			self._state = self.FOCUS
-		elif uMsg == WindowsManager.WM_KILLFOCUS:
+		elif uMsg == WindowsMacros.WM_KILLFOCUS:
 			self._state = self.NO_FOCUS
 			
 		if self._state == self.FOCUS or self._state == self.UP:
@@ -931,9 +933,75 @@ class _windowEditbox(_windowBase):
 class _windowTab(_windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowTab, self).__init__(wsize, winbk)
+		self.setRenderArgs(*args)
+
+		# {button_name: getMsg return}
+		self._buttonsize = self._args[0]
+		self._button_img = self._args[1]
+		self._buttons_li = self._args[2]
+		self._buttons = []
+		self._handle = 0
+		self._surface = pygame.Surface(wsize, pygame.SRCALPHA)
+		self._surface.blit(self._bk, (0, 0))
+		self._surf = None
+		self._state = 0
+		self._current_tab = [0, (0, 0)]
+
+	def init(self, hWnd):
+		self._handle = hWnd
+		self._state = 0
+		self._buttons = []
+		addbutton = (lambda x, val: self._buttons.append(
+			(self._wm.CreateWindow(WindowsMacros.WC_BUTTON, (self._buttonsize, self._button_img, x)), val)
+			))
+		cx = 0
+		for i in self._buttons_li:
+			# key, val = i
+			addbutton(*i)
+			self._wm.MoveWindowToPos(self._buttons[-1][0], cx, 0)
+			cx += self._buttonsize[0]
+
+		if self._buttons:
+			self._wm.SendMessage(self._buttons[-1][0], WindowsMacros.WM_KILLFOCUS)
+			self._state = self._buttons[0][1]
+			self._current_tab[0] = self._buttons[0][0]
+			self._current_tab[1] = (0, 0)
+
+		return True
 
 	def callback(self, RgineEvent, uMsg):
-		pass
+		self._surf = self._surface.copy()
+
+		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
+			if msg == WindowsMacros.HIT:
+				for i in self._buttons:
+					if i[0] == hWnd:
+						self._state = i[1]
+						self._current_tab[0] = hWnd
+						self._current_tab[1] = pos
+						continue
+			elif msg == WindowsMacros.UP:
+				self._wm.SetTopmost(-1, False)
+			self._surf.blit(surface, pos)
+
+		inst = self._wm.getInstance(self._current_tab[0])
+		if inst is not None:
+			t = inst._state
+			inst._state = WindowsMacros.HIT
+			surf = inst.render()
+			self._surf.blit(surf, self._current_tab[1])
+			inst._state = t
+
+		return True
+
+	def render(self):
+		return self._surf
+
+	def release(self):
+		self._wm.Release()
+
+	def getMsg(self):
+		return self._state
 
 
 def _main():
@@ -1028,6 +1096,11 @@ def _main():
 				  WindowsMacros.MB_ICONWARNING | WindowsMacros.MB_CANCELTRYCONTINUE
 				  , [_button_size[0]//2, _button_size[1]//2]))
 
+	wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
+	                                              (100, 100), pygame.Surface((100, 100)),
+	                                              [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
+	)
+
 	p.enable()
 	running = True
 	while running:
@@ -1043,6 +1116,8 @@ def _main():
 			if hWnd == msgbox:
 				if msg != WindowsMacros.IDNORESULT:
 					print("Messagebox %d !"%msg)
+			if hWnd == wtab:
+				print(msg)
 		pygame.display.flip()
 
 		fps += 1
