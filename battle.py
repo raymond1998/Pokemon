@@ -1,5 +1,3 @@
-import time
-
 from basics import *
 from resources_loader import *
 
@@ -156,54 +154,6 @@ class uiStatus(choice1):
 		)
 		return self._bk_
 
-
-class BattleProcedure(object):
-	# procedure:
-	#   0:  not used
-	#   1:  init
-	#   2:  ui->wait for operation
-	#   3:  attack
-	#   4:  backpack
-	#   5:  run
-	#   6:  defend
-	#   7:  death->player
-	#   8:  death->enemy
-	#   9:  exp change
-	#   10: level change
-	#   11: next pokemon (player)
-	#   12: next pokemon (enemy)
-	#   13: release
-	def __init__(self, winsize, atk, defense):
-		self._surface = pygame.Surface(winsize, pygame.SRCALPHA)
-		self._timer = time.clock()
-		self._uistatus = [False, False]
-		self._procedure = 0
-		self._atk = atk
-		self._def = defense
-		
-	def init(self):
-		self._procedure = 1
-		self._surface.fill((0, 0, 0))
-
-	def isUIPresent(self):
-		return self._uistatus
-
-	def callback(self):
-		self._surface.fill((0, 0, 0))
-##		t = time.clock()
-##		t_tme = (t - self._timer)
-		if self._procedure == 1:
-			b = self.proc_1
-			if not b: self._procedure = 2
-
-	def render(self, surface):
-		surface.blit(self._surface, (0, 0))
-
-	def proc_1(self):
-		t = time.clock()
-		t_tme = t - self._timer
-
-		
 
 class Battle(pEvent):
 	def __init__(self):
