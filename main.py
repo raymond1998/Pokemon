@@ -4,6 +4,7 @@ import rgine
 import base as base
 import menu as menu
 import battle as battle
+import backpack as backpack
 import ChiangObjectives as character
 import Combinedv2 as libpkmon
 
@@ -61,6 +62,7 @@ runningNpcEvent = base.NPC(None, None)
 
 uMenu = menu.init_menu(menu.buttons, menu.inst)
 uBattle = battle.Battle()
+uBackpack = backpack.Backpack(wm, pManager.getPlayer())
 
 import time
 fps = 0
@@ -81,7 +83,11 @@ while True:
 	pManager.updateEvent(evt, wm)
 	x = y = 0
 
-	if not runningNpcEvent.isRunning() and not uMenu.isRunning() and not uBattle.isRunning():
+	if not runningNpcEvent.isRunning() and \
+			not uMenu.isRunning() and \
+			not uBattle.isRunning() and \
+			not uBackpack.isRunning():
+
 		if evt.isKeyDown(pygame.K_UP) or evt.isKeyDown(pygame.K_w):
 			y -= 1
 		elif evt.isKeyDown(pygame.K_DOWN) or evt.isKeyDown(pygame.K_s):
@@ -127,7 +133,8 @@ while True:
 
 	if pEvt != -1:
 		pEventList.append(pEvt[0](*pEvt[1]))
-		if not pEvent[-1].init(evt, wm): pEventList.pop()
+		if not pEventList[-1].init(evt, wm): pEventList.pop()
+
 
 	# shift world
 	x, y = ScreenSize
@@ -146,7 +153,8 @@ while True:
 			i.release(wm)
 			pEventList.remove(i)
 		else:
-			screen.blit(surf, pos)
+			if isinstance(pos, (tuple, list)):
+				screen.blit(surf, pos)
 
 	# User Menu
 	surf, pos = uMenu.update(evt, wm)
@@ -171,6 +179,17 @@ while True:
 		else:
 			raise ValueError(result)
 		uBattle.release(wm)
+
+	# Backpack
+	if evt.isKeyHit(pygame.K_8) and not uBackpack.isRunning():
+		uBackpack.setPlayer(pManager.getPlayer())
+		uBackpack.init(evt, wm)
+	elif evt.isKeyHit(pygame.K_8):
+		uBackpack.release(wm)
+	result = uBackpack.render(evt, wm)[1]
+	if result is not None and result != 0:
+		print(result)
+		uBackpack.release(wm)
 
 	# WindowsManager should always stay above the world
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):

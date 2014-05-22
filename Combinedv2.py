@@ -5,11 +5,14 @@ from random import *
 import pygame
 
 
+
+
 ##import rgine
 
 import sys
 path = sys.path[0]
 if not path: path = sys.path[1]
+
 def STAB(PokeType,PokeType2,AttType):
 	if PokeType==AttType or PokeType2==AttType:
 		return 1.5
