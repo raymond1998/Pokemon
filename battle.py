@@ -3,6 +3,11 @@ from resources_loader import *
 
 __author__ = 'Charles-Jianye Chen'
 
+import sys
+path = sys.path[0]
+if not path: path = sys.path[1]
+_battle_bk = rgine.surface_buffer.read_buffer(path+"/resources/battle", 1920, 1200)
+
 ATK = 1
 DEF = 2
 
@@ -240,7 +245,8 @@ class Battle(pEvent):
 
 
 			def cb(self, event, uMsg):
-				self._bk_.fill((150, 150, 150, 255//2))
+				# self._bk_.fill((150, 150, 150, 255//2))
+				self._bk_ = self._bk.copy()
 				x, y = self._wm.screensize
 				self._bk_.blit(self._atk.render(False), (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
 				# t = pygame.Surface((self._atk.get_size()), pygame.SRCALPHA)
@@ -303,8 +309,11 @@ class Battle(pEvent):
 				self._wm.Release()
 
 			winsize = wm.screensize
+			surf = pygame.transform.scale(_battle_bk, winsize).convert()
+			surf.set_alpha(200)
 			self._scene = wm.CreateWindow(
-				wm.RegisterClass(False, init, cb, rd, getMsg, rel), (winsize, None)
+				wm.RegisterClass(False, init, cb, rd, getMsg, rel),
+				(winsize, surf)
 				)
 			x, y = wm.screensize
 			wm.MoveWindow(self._scene, (x-winsize[0])//2, (y-winsize[1])//2)
