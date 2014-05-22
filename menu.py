@@ -24,7 +24,9 @@ class _MenuMain(NPC_Skeleton):
 				self._buttons = buttons
 
 				cy = 0
-				for i in self._buttons:
+				t = list(self._buttons.keys())
+				t.sort()
+				for i in t:
 					self._hWnds[i] = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
 									    (_button_size, self.wmacros.button, "%s"%self._buttons[i],
 														pygame.font.SysFont('Times New Romen', 16),
@@ -149,5 +151,5 @@ class Menu_Exit(base.pEvent):
 	def render(self, evt, wm):
 		return True, None
 
-buttons = {1:"help", 2:"exit"}
-inst = {1:Menu_Help(), 2:Menu_Exit()}
+buttons = {1:"me", 2:"backpack", 3:"pokemon", 98:"help", 99:"exit"}
+inst = {98:Menu_Help(), 99:Menu_Exit()}
