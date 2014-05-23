@@ -74,6 +74,7 @@ class WindowsMacros(object):
 	DOWN = 2
 	HIT = 3
 	UP = 4
+	CONFIRM = 5
 
 	# Msgbox Style
 	# Buttons
@@ -936,11 +937,55 @@ class _windowMsgbox(windowFramed):
 class _windowEditbox(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowEditbox, self).__init__(wsize, winbk)
+		self.setRenderArgs(*args)
+		self._handle = 0
+		self._surf = self._bk.copy()
+		self._state = 0
 
-	def callback(self, RgineEvent, uMsg):
-		pass
+		self._focus_img = pygame.Surface(wsize, pygame.SRCALPHA)
+		self._focus_img.fill((111, 111, 111, 111))
 
+		self._text = []
+		
+	def init(self, hWnd):
+		self._handle = hWnd
+		
+		return True
+	
+	def callback(self, evt, uMsg):
+		self._surf = self._bk.copy()
+##		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
+##			self._surf.blit(surface, pos)
+		if uMsg == WindowsMacros.WM_SETFOCUS:
+			self._state = WindowsMacros.FOCUS
+		elif uMsg == WindowsMacros.WM_KILLFOCUS:
+			self._state = WindowsMacros.NOFOCUS
+s
+		if self._state == FOCUS:
+			self._surf.blit(self._focus_img, (0, 0))
+			if evt.type == pygame.KEYDOWN:
+				if evt.dict["key"] == pygame.K_BACKSPACE:
+					if self._text: self._text.pop()
+				elif evt.dict["key"] == pygame.K_RETURN:
+					self._state = WindowsMacros.CONFIRM
+				else:
+					if evt.dict["unicode"]:
+						self._text.append(evt.dict["unicode"])
 
+		render_text(self._surf.get_size(), "".join(self._text), pygame.font.SysFont('Times New Romen', 16), True, (255, 255, 255))
+
+		return True
+	
+	def render(self):
+		return self._surf
+
+	def release(self):
+		self._wm.Release()
+
+	def getMsg(self):
+		return self._state
+
+	
 class _windowTab(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowTab, self).__init__(wsize, winbk)
@@ -1106,8 +1151,8 @@ def _main():
 				  , [_button_size[0]//2, _button_size[1]//2]))
 
 	wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
-	                                              (100, 100), pygame.Surface((100, 100)),
-	                                              [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
+						      (100, 100), pygame.Surface((100, 100)),
+						      [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
 	)
 
 	p.enable()
