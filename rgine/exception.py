@@ -20,7 +20,7 @@ _stackinfo = \
 '''
 
 class error(Exception):
-	def __init__(self, msg, exception=Exception, e_level="Exception", logfile="Exception.log", c_context=10):
+	def __init__(self, msg, exception=Exception, e_level="Exception", c_context=10, logfile="Exception.log"):
 		self.msg = msg
 		stackinfo = []
 		j = 0
