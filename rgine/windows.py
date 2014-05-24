@@ -43,7 +43,7 @@ def render_text(surfacesize, text, pyFont, *rendering_args):
 	"""
 	rendering_args = list(rendering_args)
 	Surface = pygame.Surface(surfacesize, pygame.SRCALPHA)
-	cx = cy = 0
+	cy = 0
 	text = text.replace("\t", " "*4)
 	for txt in text.split("\n"):
 		cx = 0
@@ -1220,10 +1220,10 @@ def _main():
 				  WindowsMacros.MB_ICONWARNING | WindowsMacros.MB_CANCELTRYCONTINUE
 				  , [_button_size[0]//2, _button_size[1]//2]))
 	wtab = 0
-	# wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
-	# 					      (100, 100), pygame.Surface((100, 100)),
-	# 					      [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
-	# )
+	wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
+						      (100, 100), pygame.Surface((100, 100)),
+						      [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
+	)
 
 	weditbox = wm.CreateWindow(WindowsMacros.WC_EDITBOX, ((200, 100), None))
 
@@ -1247,7 +1247,7 @@ def _main():
 		pygame.display.flip()
 
 		fps += 1
-		if time.clock() - t >= 20000000:
+		if time.clock() - t >= 60:
 			break
 		# print(fps, time.clock()-t)
 		# print("Current Topmost: %d"%(wm._current["topmost"]-10))
