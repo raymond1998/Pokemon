@@ -1,7 +1,7 @@
 import pygame
-#for exception handling, relies on where this is defined
+
 import rgine as rgine
-rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
+
 
 #globals
 

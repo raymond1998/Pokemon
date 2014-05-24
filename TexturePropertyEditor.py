@@ -7,9 +7,9 @@ import pygame
 import wapisp
 
 
+
 pygame.init()
 import rgine as rgine
-rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
 
 _ok = rgine.surface_buffer.read_buffer("ok", 32, 32)
 _cross = rgine.surface_buffer.read_buffer("cross", 32, 32)

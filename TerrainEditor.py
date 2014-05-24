@@ -8,7 +8,7 @@ MB_ICONINFORMATION = 0x00000040
 import time
 pygame.init()
 import rgine as rgine
-rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
+
 
 def getTerrainByPos(terrain, mouseX, mouseY, shiftX, shiftY):
 		a, b = terrain.getTerrainByRelativeRect((mouseX-shiftX, mouseY-shiftY, 0, 0))

@@ -1,11 +1,6 @@
 import pygame
 
-#for exception handling, relies on where this is defined
 import rgine as rgine
-rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
-
-
-##raise rgine.GeneralException(rgine.getName(), rgine.getLine(), "test")
 
 Tsize = 11
 

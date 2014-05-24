@@ -4,14 +4,10 @@ import pygame
 
 p = cProfile.Profile()
 
-#for exception handling, relies on where this is defined
 import rgine as rgine
-rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
 
 p.enable()
 
-
-##raise rgine.GeneralException(rgine.getName(), rgine.getLine(), "test")
 
 Tsize = 11
 
