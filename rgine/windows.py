@@ -236,7 +236,7 @@ class WindowsManager(object):
 
 	def DispatchMessage(self, _RgineEvent):
 		"""
-		window.callback(_RgineEvent); window.render()
+		window.callback(_RgineEvent); window.render().
 		:rgine.Event _RgineEvent:
 		:raise ValueError if it is not a subclass of rgine.Event:
 		"""
@@ -312,7 +312,7 @@ class WindowsManager(object):
 
 	def MoveWindow(self, hWnd, x, y):
 		"""
-		Moves the specific window by x, y
+		Moves the specific window by x, y.
 		:hWnd hWnd:
 		:int x:
 		:int y:
@@ -325,7 +325,7 @@ class WindowsManager(object):
 
 	def MoveWindowToPos(self, hWnd, x, y):
 		"""
-		Moves the specific window to x, y
+		Moves the specific window to x, y.
 		:hWnd hWnd:
 		:int x:
 		:int y:
@@ -346,34 +346,6 @@ class WindowsManager(object):
 		if hWnd in self._current["layer"]:
 			return self._windows[hWnd].callback(event.Event(), uMsg)
 		return False
-
-	# def SetTopmost(self, hWnd, bSet=True):
-	# 	if hWnd == -1:
-	# 		if self._current["topmost"] != -1: self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
-	# 		self._current["topmost"] = -1
-	# 		self._topmost_lock = bool(bSet)
-	# 		return True
-	# 	if hWnd not in self._current["layer"]:
-	# 		return False
-	# 	if hWnd != self._current["topmost"] and bSet:
-	# 		self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
-	# 		self._current["topmost"] = hWnd
-	# 		self.SendMessage(self._current["topmost"], self.WM_SETFOCUS)
-	# 		self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
-	# 			"topmost"])))
-	# 		self._topmost_lock = True
-	# 		return True
-	# 	elif bSet:
-	# 		self._topmost_lock = True
-	# 		return False
-	# 	elif not bSet:
-	# 		self._topmost_lock = False
-	# 		self._current["topmost"] = hWnd
-	# 		self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
-	# 			"topmost"])))
-	# 		return True
-	# 	else:
-	# 		return False
 
 	def SetTopmost(self, hWnd, bSet=True):
 		"""
@@ -415,11 +387,15 @@ class WindowsManager(object):
 			layer.append(layer.pop(layer.index(self._current["topmost"])))
 
 	def GetTopmost(self):
+		"""
+		Returns the hWnd of the current topmost window.
+		:return int:
+		"""
 		return self._current["topmost"]
 
 	def GetCurrentWindows(self):
 		"""
-		Returns a list of handles of present windows
+		Returns a list of handles of present windows.
 		:return list:
 		"""
 		return self._current["layer"]
@@ -433,21 +409,36 @@ class WindowsManager(object):
 
 	def Reset(self):
 		"""
-		Calls self.Release()
+		Calls self.Release().
 		"""
 		self.Release()
 
 	def getMsg(self, hWnd):
+		"""
+		Returns the specific window's msg.
+		:int hWnd:
+		:return msg_return/None(if not present):
+		"""
 		if hWnd in self._current["layer"]:
 			return self._windows[hWnd].getMsg()
 		return None
 
 	def getInstance(self, hWnd):
+		"""
+		Returns the instance of the specific window.
+		:int hWnd:
+		:return instance/None(if not present):
+		"""
 		if hWnd in self._current["layer"]:
 			return self._windows[hWnd]
 		return None
 
 	def isWindowPresent(self, hWnd):
+		"""
+		Returns True if the window is present.
+		:int hWnd:
+		:return bool:
+		"""
 		if hWnd in self._current["layer"]:
 			return True
 		return False
