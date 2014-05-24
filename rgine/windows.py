@@ -11,6 +11,7 @@ import event
 
 
 
+
 p = cProfile.Profile()
 __author__ = "Charles-Jianye Chen"
 
@@ -375,19 +376,43 @@ class WindowsManager(object):
 	# 		return False
 
 	def SetTopmost(self, hWnd, bSet=True):
-		self._topmost_lock = bool(bSet)
+		"""
+		SetTopmost() Behavior:
+			bSet:
+				if hWnd in layer:
+					self._topmost_lock = bool(bSet)
+				else:
+					self._topmost_lock = False
+
+			hWnd:
+				if hWnd == -1:
+					killfocus(current topmost), set invalid topmost(-1)
+				if hWnd != current topmost and hWnd in layer:
+					killfocus(current topmost), setfocus(hWnd), change pos in layer
+				else:
+					do nothing
+
+		:int hWnd:
+		:bool bSet:
+		"""
 		layer = self._current["layer"]
+
+		# bSet
+		if hWnd in layer:
+			self._topmost_lock = bool(bSet)
+		else:
+			self._topmost_lock = False
+
+		# hWnd
 		if hWnd == -1:
-			if self._current["topmost"] != -1: self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
+			if self._current["topmost"] != -1:
+				self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
 			self._current["topmost"] = -1
-			return True
-		if hWnd in layer and self._current["topmost"] != hWnd:
+		elif hWnd != self._current["topmost"] and hWnd in layer:
 			self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
 			self._current["topmost"] = hWnd
 			self.SendMessage(self._current["topmost"], self.WM_SETFOCUS)
 			layer.append(layer.pop(layer.index(self._current["topmost"])))
-		if hWnd not in layer:
-			self._topmost_lock = False
 
 	def GetTopmost(self):
 		return self._current["topmost"]
