@@ -5,7 +5,7 @@ Level		: %s
 Timestamp	: %d
 Exc.Type    : %s
 RuntimeMsg	: %s
-Stack		: %s
+Traceback	: %s
 '''
 
 _stackinfo = \
@@ -20,16 +20,17 @@ _stackinfo = \
 '''
 
 class error(Exception):
-	def __init__(self, msg, exception=Exception, e_level="Exception", logfile="Exception.log"):
+	def __init__(self, msg, exception=Exception, e_level="Exception", logfile="Exception.log", c_context=10):
 		self.msg = msg
 		stackinfo = []
 		j = 0
 		if not issubclass(exception, Exception): exception = Exception
 		self._exception = exception
-
-		stack = inspect.stack()
+		try: c_context = int(c_context)
+		except ValueError: c_context = 10
+		stack = inspect.stack(c_context)
 		for i in map(list, stack):
-			i[4] = "\n".join(i[4])
+			i[4] = "\n"+"".join(list(map(lambda x: "\t"*5+x, i[4])))
 			t = (str(j), ) + tuple(map(str, i[1:]))
 			stackinfo.append(_stackinfo%t)
 			j += 1
