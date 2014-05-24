@@ -179,7 +179,6 @@ class ShopNPC(NPC_Skeleton):
 						def cb(self, event, uMsg):  #callback
 								nonlocal _button_size
 								self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
-								done = False
 								for i in self._stable:
 										self._bk_.blit(*i)
 								for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
@@ -204,16 +203,6 @@ class ShopNPC(NPC_Skeleton):
 														print("Yes")
 												else:
 														print("No")
-
-
-
-												# self._wm.SetTopmost(-1, False)
-												# self._wm.DestroyWindow(self.msgbox)
-												# self.msgbox = 0
-								if self._wm.isWindowPresent(self.msgbox):
-										print(self._wm.getInstance(self.msgbox).getPos())
-										# print(self._wm.GetTopmost())
-
 
 								return True
 

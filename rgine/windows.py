@@ -9,6 +9,7 @@ import event
 
 
 
+
 p = cProfile.Profile()
 __author__ = "Charles-Jianye Chen"
 
@@ -301,7 +302,9 @@ class WindowsManager(object):
 				if not self._current["layer"]:
 					self._current["topmost"] = -1
 				else:
-					self._current["topmost"] = self._current["layer"][-1]
+					# self._current["topmost"] = self._current["layer"][-1]
+					self.SetTopmost(self._current["layer"][-1], True)
+					self.SetTopmost(self._current["layer"][-1], False)
 			return True
 		return False
 
