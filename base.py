@@ -67,7 +67,7 @@ class CoversationNPC(NPC_Skeleton):
 
 								self._wm.MoveWindow(self._button0, x//2-_button_size[0]//2, (y-_button_size[1])*8//10)
 								self._wm.MoveWindow(self._text0, x*1//10, y*1//10)
-								self._wm.SetTopmost(self._button0, True)
+								# self._wm.SetTopmost(self._button0, True)
 								self._wm.SetTopmost(self._button0, False)
 
 						def cb(self, event, uMsg):
@@ -87,7 +87,7 @@ class CoversationNPC(NPC_Skeleton):
 																												pygame.font.SysFont('Times New Romen', 16),
 																												True, (255, 255, 255)), True)
 														self._wm.MoveWindowToPos(self._text0, x*1//10, y*1//10)
-														self._wm.SetTopmost(self._button0, True)
+														# self._wm.SetTopmost(self._button0, True)
 														self._wm.SetTopmost(self._button0, False)
 								return True
 

@@ -10,6 +10,7 @@ import event
 
 
 
+
 p = cProfile.Profile()
 __author__ = "Charles-Jianye Chen"
 
@@ -345,33 +346,48 @@ class WindowsManager(object):
 			return self._windows[hWnd].callback(event.Event(), uMsg)
 		return False
 
+	# def SetTopmost(self, hWnd, bSet=True):
+	# 	if hWnd == -1:
+	# 		if self._current["topmost"] != -1: self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
+	# 		self._current["topmost"] = -1
+	# 		self._topmost_lock = bool(bSet)
+	# 		return True
+	# 	if hWnd not in self._current["layer"]:
+	# 		return False
+	# 	if hWnd != self._current["topmost"] and bSet:
+	# 		self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
+	# 		self._current["topmost"] = hWnd
+	# 		self.SendMessage(self._current["topmost"], self.WM_SETFOCUS)
+	# 		self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
+	# 			"topmost"])))
+	# 		self._topmost_lock = True
+	# 		return True
+	# 	elif bSet:
+	# 		self._topmost_lock = True
+	# 		return False
+	# 	elif not bSet:
+	# 		self._topmost_lock = False
+	# 		self._current["topmost"] = hWnd
+	# 		self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
+	# 			"topmost"])))
+	# 		return True
+	# 	else:
+	# 		return False
+
 	def SetTopmost(self, hWnd, bSet=True):
+		self._topmost_lock = bool(bSet)
+		layer = self._current["layer"]
 		if hWnd == -1:
 			if self._current["topmost"] != -1: self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
 			self._current["topmost"] = -1
-			self._topmost_lock = bool(bSet)
 			return True
-		if hWnd not in self._current["layer"]:
-			return False
-		if hWnd != self._current["topmost"] and bSet:
+		if hWnd in layer and self._current["topmost"] != hWnd:
 			self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
 			self._current["topmost"] = hWnd
 			self.SendMessage(self._current["topmost"], self.WM_SETFOCUS)
-			self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
-				"topmost"])))
-			self._topmost_lock = True
-			return True
-		elif bSet:
-			self._topmost_lock = True
-			return False
-		elif not bSet:
+			layer.append(layer.pop(layer.index(self._current["topmost"])))
+		if hWnd not in layer:
 			self._topmost_lock = False
-			self._current["topmost"] = hWnd
-			self._current["layer"].append(self._current["layer"].pop(self._current["layer"].index(self._current[
-				"topmost"])))
-			return True
-		else:
-			return False
 
 	def GetTopmost(self):
 		return self._current["topmost"]
@@ -940,7 +956,7 @@ class _windowMsgbox(windowFramed):
 				if topmost == self._buttons[i][0]:
 					break
 			if p == len(self._buttons): p = 0
-			self._wm.SetTopmost(self._buttons[p][0], True)
+			# self._wm.SetTopmost(self._buttons[p][0], True)
 			self._wm.SetTopmost(self._buttons[p][0], False)
 
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):

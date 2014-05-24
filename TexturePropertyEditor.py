@@ -6,6 +6,7 @@ import pygame
 
 import wapisp
 
+
 pygame.init()
 import rgine as rgine
 rgine.getName = (lambda: rgine.inspect.getfile(rgine.inspect.currentframe()))
@@ -44,7 +45,7 @@ for i in range(len(buttons)):
 	t = wm.CreateWindow(wmacro.WC_BUTTON, ((158//2, 59//2), rgine.windows._button,buttons[i]))
 	wm.MoveWindow(t, 158//2*i, 0)
 	wmbuttons[t] = buttons[i]
-wm.SetTopmost(-1)
+wm.SetTopmost(-1, False)
 
 ##screen = pygame.display.set_mode((16*50, 9*50))
 hPygameWindow = pygame.display.get_wm_info()["window"]
@@ -114,7 +115,7 @@ while True:
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):
 		screen.blit(surface, pos)
 		if hWnd in wmbuttons and msg == wmacro.HIT:
-			wm.SetTopmost(-1)
+			wm.SetTopmost(-1, False)
 			if wmbuttons[hWnd] == "Open":
 				strfilter = ".texture file\x00*.texture\x00.jpeg image file\x00*.jpeg\x00\x00"
 				wapisp.MessageBox(hPygameWindow, "Terrain file first, then .texture/.jpeg file, and optional textureProperty file. ", wmbuttons[hWnd])

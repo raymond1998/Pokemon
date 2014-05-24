@@ -33,7 +33,7 @@ class _MenuMain(NPC_Skeleton):
 														True, (255, 255, 255)), True)
 					self._wm.MoveWindowToPos(self._hWnds[i], 0, cy)
 					cy += _button_size[1]
-				self._wm.SetTopmost(-1, True)
+				# self._wm.SetTopmost(-1, True)
 				self._wm.SetTopmost(-1, False)
 
 			def cb(self, event, uMsg):

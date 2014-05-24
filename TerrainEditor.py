@@ -56,7 +56,7 @@ for i in range(len(buttons)):
 	t = wm.CreateWindow(wmacro.WC_BUTTON, ((158//2, 59//2), rgine.windows._button,buttons[i]))
 	wm.MoveWindow(t, 158//2*i+10*i, 0)
 	wmbuttons[t] = buttons[i]
-wm.SetTopmost(-1)
+wm.SetTopmost(-1, False)
 
 wReadOffset = (0, 30)
 wWriteOffset = (400, 30)
@@ -161,7 +161,7 @@ while running:
 	for hWnd, msg, surface, pos in wm.DispatchMessage(evt):
 		screen.blit(surface, pos)
 		if hWnd in wmbuttons and msg == wmacro.HIT:
-			wm.SetTopmost(-1)
+			wm.SetTopmost(-1, False)
 
 			if wmbuttons[hWnd] == "New":
 				tWrite.init(TsizeW, TsizeH, textureSize, textureSize)
