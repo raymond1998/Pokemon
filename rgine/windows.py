@@ -1,4 +1,5 @@
 import cProfile
+import copy
 
 import pygame
 
@@ -38,6 +39,7 @@ def render_text(surfacesize, text, pyFont, *rendering_args):
 	rendering_args = list(rendering_args)
 	Surface = pygame.Surface(surfacesize, pygame.SRCALPHA)
 	cx = cy = 0
+	text = text.replace("\t", " "*4)
 	for txt in text.split("\n"):
 		cx = 0
 		for t in txt.split(" "):
@@ -67,13 +69,15 @@ class WindowsMacros(object):
 	WC_FRAME = 2
 	WC_MSGBOX = 3
 	WC_TAB = 4
+	WC_EDITBOX = 5
 
 	# WinClass
-	NO_FOCUS = 0
+	NOFOCUS = 0
 	FOCUS = 1
 	DOWN = 2
 	HIT = 3
 	UP = 4
+	CONFIRM = 5
 
 	# Msgbox Style
 	# Buttons
@@ -103,19 +107,22 @@ class WindowsMacros(object):
 	IDTRYAGAIN = 10
 	IDCONTINUE = 11
 
-_default_frame_args = {"bk": None, "tbH": 16, "state": WindowsMacros.NO_FOCUS,
+_default_frame_args = {"bk": None, "tbH": 16, "state": WindowsMacros.NOFOCUS,
 						"frameW": 1, "tbRect": None, "frameColor": (111, 111, 111, 256//2),
 						"titleColor": (0, 0, 0, 256*2//3), "frameMessage": False}
 
 _default_rendering_args = {"font_rendering_args":
-							   (pygame.font.SysFont('Times New Romen', 16), True, (255, 255, 255)),
+							   [None, True, (255, 255, 255)],
 						   "text": "Text"}
 
+_default_font = pygame.font.SysFont('Times New Romen', 16)
 def getDefaultFrameArgs():
 	return _default_frame_args.copy()
 
 def getDefaultRenderingArgs():
-	return _default_rendering_args.copy()
+	t = copy.deepcopy(_default_rendering_args)
+	t["font_rendering_args"][0] = _default_font
+	return t
 
 class WindowsManager(object):
 	WM_NULL = 0
@@ -129,7 +136,9 @@ class WindowsManager(object):
 						 1: _windowButton,
 						 2: _windowFrame,
 						 3: _windowMsgbox,
-						 4: _windowTab}
+						 4: _windowTab,
+						 5: _windowEditbox,
+						 }
 		self._class_id = 9
 		self._windows = {}
 		self._window_id = 9
@@ -246,8 +255,9 @@ class WindowsManager(object):
 				if self._windows[i].getRect().collidepoint(_RgineEvent.getMousePos()):
 					if i != self._current["topmost"]:
 						self._current["topmost"] = i
-						changed = True
 					hasFocus = True
+			if last_topmost != self._current["topmost"]:
+				changed = True
 			if not hasFocus:
 				self._current["topmost"] = -1
 				changed = True
@@ -334,6 +344,7 @@ class WindowsManager(object):
 		if hWnd == -1:
 			if self._current["topmost"] != -1: self.SendMessage(self._current["topmost"], self.WM_KILLFOCUS)
 			self._current["topmost"] = -1
+			self._topmost_lock = bool(bSet)
 			return True
 		if hWnd not in self._current["layer"]:
 			return False
@@ -397,13 +408,12 @@ class WindowsManager(object):
 
 
 class windowBase(object):
-	NO_FOCUS = 0
+	NOFOCUS = 0
 	FOCUS = 1
 	DOWN = 2
 	HIT = 3
 	UP = 4
-	_rendering_args = _default_rendering_args.copy()
-	_frame_args = _default_frame_args.copy()
+
 
 	def getWindowsManager(self):
 		return self._wm
@@ -426,11 +436,17 @@ class windowBase(object):
 		return pygame.Rect(self._frame_args["frameW"], self._frame_args["tbH"], w-self._frame_args["frameW"]*2,
 						   h-self._frame_args["tbH"]-self._frame_args["frameW"])
 
+	_frame_args = _default_frame_args
+	_rendering_args = _default_rendering_args
 	def __init__(self, winsize, winbk=None):
 		"""
 		:tuple winsize:
 		:pygame.Surface winbk:
 		"""
+		self._rendering_args = copy.deepcopy(_default_rendering_args)
+		self._frame_args = copy.deepcopy(_default_frame_args)
+		self._rendering_args["font_rendering_args"][0] = _default_font
+
 		self._size = list(winsize)
 		if winbk is None:
 			self._bk = pygame.Surface(self._size, pygame.SRCALPHA)
@@ -591,7 +607,7 @@ class _windowButton(windowBase):
 
 	def render(self):
 		bk = self._bk.copy()
-		if self._state == self.NO_FOCUS:
+		if self._state == self.NOFOCUS:
 			pass
 		elif self._state == self.FOCUS or self._state == self.UP:
 			bk.blit(_button_res_focus, (0, 0))
@@ -614,7 +630,7 @@ class _windowButton(windowBase):
 		if uMsg == WindowsMacros.WM_SETFOCUS:
 			self._state = self.FOCUS
 		elif uMsg == WindowsMacros.WM_KILLFOCUS:
-			self._state = self.NO_FOCUS
+			self._state = self.NOFOCUS
 			
 		if self._state == self.FOCUS or self._state == self.UP:
 			if RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT) and self.getRect().collidepoint(RgineEvent.getMousePos()):
@@ -662,8 +678,13 @@ class windowFramed(windowBase):
 
 	def callback(self, RgineEvent, uMsg):
 		self._frame.update(RgineEvent, uMsg, self.getAbsoluteClientRect(), self.getRect())
-		x, y = self._frame.getMsg()
-		if x or y: self.MoveWindow(x, y)
+		if self._frame._frame_args["frameMessage"]:
+			x, y = self._frame.getMsg()
+			if x or y:
+				self.MoveWindow(x, y)
+			if uMsg != WindowsMacros.WM_SETFOCUS \
+				and uMsg != WindowsMacros.WM_KILLFOCUS:
+				return True
 		RgineEvent.shiftMousePos(-self._frame_args["frameW"], -self._frame_args["tbH"])
 		r = self.callback_(RgineEvent, uMsg)
 		RgineEvent.shiftMousePos(+self._frame_args["frameW"], +self._frame_args["tbH"])
@@ -756,17 +777,19 @@ class _windowFrame(windowBase):
 		if uMsg == WindowsManager.WM_SETFOCUS:
 			self._frame_args["state"] = self.FOCUS
 		elif uMsg == WindowsManager.WM_KILLFOCUS:
-			self._frame_args["state"] = self.NO_FOCUS
+			self._frame_args["state"] = self.NOFOCUS
 
-		if self._frame_args["state"] == self.NO_FOCUS:
-			return True
+		if self._frame_args["state"] == self.NOFOCUS:
+			return False
 
 		if RgineEvent.isMouseHit(RgineEvent.MOUSE_LEFT) \
-				and not absClientRect.collidepoint(RgineEvent.getMousePos()) \
-				and Rect.collidepoint(RgineEvent.getMousePos()):
+				and (not absClientRect.collidepoint(RgineEvent.getMousePos())) \
+				and (Rect.collidepoint(RgineEvent.getMousePos())):
+			# print("init")
 			self._frame_args["frameMessage"] = True
 		elif RgineEvent.isMouseUp(RgineEvent.MOUSE_LEFT):
 			self._frame_args["frameMessage"] = False
+			# input("rel")
 
 		if self._frame_args["frameMessage"]:
 			wasDown = False
@@ -936,11 +959,63 @@ class _windowMsgbox(windowFramed):
 class _windowEditbox(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowEditbox, self).__init__(wsize, winbk)
+		self.setRenderArgs(*args)
+		self._handle = 0
+		self._surf = self._bk.copy()
+		self._state = 0
 
-	def callback(self, RgineEvent, uMsg):
-		pass
+		self._focus_img = pygame.Surface(wsize, pygame.SRCALPHA)
+		self._focus_img.fill((111, 111, 111, 111))
 
+		self._text = []
+		self._font = pygame.font.SysFont('Times New Romen', 16)
+		if self._args and isinstance(self._args[0], pygame.font.Font):
+				self._font = self._args[0]
+		
+	def init(self, hWnd):
+		self._handle = hWnd
+		
+		return True
+	
+	def callback(self, evt, uMsg):
+		self._surf = self._bk.copy()
+##		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
+##			self._surf.blit(surface, pos)
+		if uMsg == WindowsMacros.WM_SETFOCUS:
+			self._state = WindowsMacros.FOCUS
+		elif uMsg == WindowsMacros.WM_KILLFOCUS:
+			self._state = WindowsMacros.NOFOCUS
 
+		if self._state == WindowsMacros.FOCUS:
+			self._surf.blit(self._focus_img, (0, 0))
+			if evt.type == pygame.KEYDOWN:
+				if evt.dict["key"] == pygame.K_BACKSPACE:
+					if self._text: self._text.pop()
+				elif evt.dict["key"] == pygame.K_RETURN:
+					self._text.append("\n")
+				elif evt.dict["key"] == pygame.K_TAB:
+					self._text.append("\t")
+				else:
+					if evt.dict["unicode"]:
+						self._text.append(evt.dict["unicode"])
+			# if self._text: print(self._text)
+
+		surf = render_text(self._surf.get_size(), "".join(self._text),
+		            self._font, True, (255, 255, 255))
+		self._surf.blit(surf, (0, 0))
+
+		return True
+	
+	def render(self):
+		return self._surf
+
+	def release(self):
+		self._wm.Release()
+
+	def getMsg(self):
+		return self._state
+
+	
 class _windowTab(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowTab, self).__init__(wsize, winbk)
@@ -1014,7 +1089,8 @@ class _windowTab(windowBase):
 
 
 def _main():
-	uin = input("input 'f' or  'F' to see the framed example\ninput anything else to see the unframed example\n-> ")
+	# uin = input("input 'f' or  'F' to see the framed example\ninput anything else to see the unframed example\n-> ")
+	uin = "f"
 	if uin.lower() == "f":
 		framed = True
 	else:
@@ -1085,6 +1161,8 @@ def _main():
 	hwnd4 = wm.CreateWindow(wm.RegisterClass(framed, init, cb, rd, getMsg, rel), ((200, 200), surf, "this is 4"))
 											  # pygame.font.SysFont('Times New Romen', 16),
 											  # True, (255, 255, 255)))
+	wm.getInstance(hwnd4)._wm.CreateWindow(wm.getInstance(hwnd4)._wm.RegisterClass(framed, init, cb, rd, getMsg, rel), ((200, 200), surf,
+	                                                                                             "this is 4x"))
 	ychg = 0
 	xchg = 0
 	for i in range(5):
@@ -1104,11 +1182,13 @@ def _main():
 				  "Good Morning! How Are You? ",
 				  WindowsMacros.MB_ICONWARNING | WindowsMacros.MB_CANCELTRYCONTINUE
 				  , [_button_size[0]//2, _button_size[1]//2]))
+	wtab = 0
+	# wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
+	# 					      (100, 100), pygame.Surface((100, 100)),
+	# 					      [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
+	# )
 
-	wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
-	                                              (100, 100), pygame.Surface((100, 100)),
-	                                              [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
-	)
+	weditbox = wm.CreateWindow(WindowsMacros.WC_EDITBOX, ((200, 100), None))
 
 	p.enable()
 	running = True
@@ -1130,7 +1210,7 @@ def _main():
 		pygame.display.flip()
 
 		fps += 1
-		if time.clock() - t >= 20:
+		if time.clock() - t >= 20000000:
 			break
 		# print(fps, time.clock()-t)
 		# print("Current Topmost: %d"%(wm._current["topmost"]-10))
