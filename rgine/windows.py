@@ -1,5 +1,4 @@
 import cProfile
-import copy
 
 import pygame
 
@@ -112,22 +111,8 @@ class WindowsMacros(object):
 	IDTRYAGAIN = 10
 	IDCONTINUE = 11
 
-_default_frame_args = {"bk": None, "tbH": 16, "state": WindowsMacros.NOFOCUS,
-						"frameW": 1, "tbRect": None, "frameColor": (111, 111, 111, 256//2),
-						"titleColor": (0, 0, 0, 256*2//3), "frameMessage": False}
 
-_default_rendering_args = {"font_rendering_args":
-							   [None, True, (255, 255, 255)],
-						   "text": "Text"}
-
-_default_font = pygame.font.SysFont('Times New Romen', 16)
-def getDefaultFrameArgs():
-	return _default_frame_args.copy()
-
-def getDefaultRenderingArgs():
-	t = copy.deepcopy(_default_rendering_args)
-	t["font_rendering_args"][0] = _default_font
-	return t
+_default_font = pygame.font.SysFont("Times New Romen", 16)
 
 class WindowsManager(object):
 	WM_NULL = 0
@@ -457,32 +442,38 @@ class windowBase(object):
 
 	def getClientRect(self):
 		x, y, w, h = self.getRect()
-		return pygame.Rect(0, 0, w-self._frame_args["frameW"]*2,h-self._frame_args["tbH"]-self._frame_args["frameW"])
+		return pygame.Rect(0, 0, w-self._frame_W*2,h-self._frame_tbH-self._frame_W)
 
 	def getAbsoluteClientRect(self):
 		x, y, w, h = self.getRect()
-		return pygame.Rect(x+self._frame_args["frameW"], y+self._frame_args["tbH"], w-self._frame_args["frameW"]*2,
-						   h-self._frame_args["tbH"]-self._frame_args["frameW"])
+		return pygame.Rect(x+self._frame_W, y+self._frame_tbH, w-self._frame_W*2,
+						   h-self._frame_tbH-self._frame_W)
 
 	def getClientSize(self):
 		x, y, w, h = self.getRect()
-		return w-self._frame_args["frameW"]*2, h-self._frame_args["tbH"]-self._frame_args["frameW"]
+		return w-self._frame_W*2, h-self._frame_tbH-self._frame_W
 
 	def getRelativeClientRect(self):
 		x, y, w, h = self.getRect()
-		return pygame.Rect(self._frame_args["frameW"], self._frame_args["tbH"], w-self._frame_args["frameW"]*2,
-						   h-self._frame_args["tbH"]-self._frame_args["frameW"])
+		return pygame.Rect(self._frame_W, self._frame_tbH, w-self._frame_W*2,
+						   h-self._frame_tbH-self._frame_W)
 
-	_frame_args = _default_frame_args
-	_rendering_args = _default_rendering_args
+	_frame_bk = None
+	_frame_tbH = 16
+	_frame_state = WindowsMacros.NOFOCUS
+	_frame_W = 1
+	_frame_tbRect = None
+	_frame_color = (111, 111, 111, 256//2)
+	_frame_titleColor = (0, 0, 0, 256*2//3)
+	_frame_msg = False
+	_render_font_args = [_default_font, True, (255, 255, 255)]
+	_render_font_text = "Text"
+
 	def __init__(self, winsize, winbk=None):
 		"""
 		:tuple winsize:
 		:pygame.Surface winbk:
 		"""
-		self._rendering_args = copy.deepcopy(_default_rendering_args)
-		self._frame_args = copy.deepcopy(_default_frame_args)
-		self._rendering_args["font_rendering_args"][0] = _default_font
 
 		self._size = list(winsize)
 		if winbk is None:
@@ -599,9 +590,9 @@ class _windowText(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(_windowText, self).__init__(wsize, winbk)
 
-		self.setRenderArgs(self._rendering_args["text"],
-					 self._rendering_args["font_rendering_args"][0],
-					 *self._rendering_args["font_rendering_args"][1:])
+		self.setRenderArgs(self._render_font_text,
+					 self._render_font_args[0],
+					 *self._render_font_args[1:])
 
 		self.setRenderArgs(*args)
 		self._bk.blit(render_text(*([self._size]+self._args)), (0, 0))
@@ -622,9 +613,9 @@ class _windowButton(windowBase):
 		super(_windowButton, self).__init__(wsize, winbk)
 		self._state = 0
 
-		self.setRenderArgs(self._rendering_args["text"],
-					 self._rendering_args["font_rendering_args"][0],
-					 *self._rendering_args["font_rendering_args"][1:])
+		self.setRenderArgs(self._render_font_text,
+					 self._render_font_args[0],
+					 *self._render_font_args[1:])
 
 		self.setRenderArgs(*args)
 
@@ -695,36 +686,36 @@ class _windowButton(windowBase):
 class windowFramed(windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		x, y = wsize
-		x += self._frame_args["frameW"]*2
-		y += (self._frame_args["frameW"]+self._frame_args["tbH"])
+		x += self._frame_W*2
+		y += (self._frame_W+self._frame_tbH)
 		
 		super(windowFramed, self).__init__((x, y), None)
 		if winbk is None:
 			pass
 		else:
-			self._bk.blit(winbk, (self._frame_args["frameW"], self._frame_args["tbH"]))
+			self._bk.blit(winbk, (self._frame_W, self._frame_tbH))
 
-		self.setRenderArgs(self._rendering_args["text"],
-					 self._rendering_args["font_rendering_args"][0],
-					 *self._rendering_args["font_rendering_args"][1:])
+		self.setRenderArgs(self._render_font_text,
+					 self._render_font_args[0],
+					 *self._render_font_args[1:])
 
 		self.setRenderArgs(*args)
 
-		self._frame = _windowFrame(wsize, self._frame_args, *args)
+		self._frame = _windowFrame(wsize, *args)
 		self._bk.blit(self._frame.render(), (0, 0))
 
 	def callback(self, RgineEvent, uMsg):
 		self._frame.update(RgineEvent, uMsg, self.getAbsoluteClientRect(), self.getRect())
-		if self._frame._frame_args["frameMessage"]:
+		if self._frame._frame_msg:
 			x, y = self._frame.getMsg()
 			if x or y:
 				self.MoveWindow(x, y)
 			if uMsg != WindowsMacros.WM_SETFOCUS \
 				and uMsg != WindowsMacros.WM_KILLFOCUS:
 				return True
-		RgineEvent.shiftMousePos(-self._frame_args["frameW"], -self._frame_args["tbH"])
+		RgineEvent.shiftMousePos(-self._frame_W, -self._frame_tbH)
 		r = self.callback_(RgineEvent, uMsg)
-		RgineEvent.shiftMousePos(+self._frame_args["frameW"], +self._frame_args["tbH"])
+		RgineEvent.shiftMousePos(+self._frame_W, +self._frame_tbH)
 		return r
 
 	def callback_(self, RgineEvent, uMsg):
@@ -750,39 +741,37 @@ class windowFramed(windowBase):
 
 
 class _windowFrame(windowBase):
-	def __init__(self, wsize, frame_args=windowBase._frame_args, *args):
-		self._frame_args = frame_args
+	def __init__(self, wsize, *args):
 		x, y = wsize
-		x += self._frame_args["frameW"]*2
-		y += (self._frame_args["frameW"]+self._frame_args["tbH"])
-		super(_windowFrame, self).__init__((x, y), self._frame_args["bk"])
+		x += self._frame_W*2
+		y += (self._frame_W+self._frame_tbH)
+		super(_windowFrame, self).__init__((x, y), self._frame_bk)
 
-		self.setRenderArgs(self._rendering_args["text"],
-			 self._rendering_args["font_rendering_args"][0],
-			 *self._rendering_args["font_rendering_args"][1:])
+		self.setRenderArgs(self._render_font_text,
+			 self._render_font_args[0],
+			 *self._render_font_args[1:])
 
 		self.setRenderArgs(*args)
 
 		wasNone = False
-		if self._frame_args["bk"] is None:
-			self._frame_args["bk"] = pygame.Surface(wsize, pygame.SRCALPHA)
+		if self._frame_bk is None:
+			self._frame_bk = pygame.Surface(wsize, pygame.SRCALPHA)
 			wasNone = True
 
-		self.applyFrame(wsize[0], self._frame_args["tbH"], self._frame_args["frameW"], self._frame_args[
-			"frameColor"], self._frame_args["titleColor"])
+		self.applyFrame(wsize[0], self._frame_tbH, self._frame_W, self._frame_color, self._frame_titleColor)
 
 		if wasNone:
-			self._frame_args["bk"] = None
+			self._frame_bk = None
 
 		self._rel = (0, 0)
 
 	def applyFrame(self, TitleW, TitleH=30, FrameW=1, FrameColor=(111, 111, 111, 256//2), TitleColor=(111, 111, 111,
 																									  256//2)):
-		bk = pygame.transform.scale(self._frame_args["bk"], self._size)
+		bk = pygame.transform.scale(self._frame_bk, self._size)
 
-		self._frame_args["tbRect"] = pygame.Rect(0, 0, TitleW, TitleH)
-		self._frame_args["tbW"] = TitleH
-		self._frame_args["frameW"] = FrameW
+		self._frame_tbRect = pygame.Rect(0, 0, TitleW, TitleH)
+		self._frame_tbH = TitleH
+		self._frame_W = FrameW
 
 		Surface = self._args[1].render(*([self._args[0]]+self._args[2:4]))
 		x, y = Surface.get_size()
@@ -793,7 +782,7 @@ class _windowFrame(windowBase):
 		pygame.draw.rect(bk, FrameColor, self.getRect(), FrameW)
 
 		self._bk = bk
-		self._frame_args["bk"] = bk
+		self._frame_bk = bk
 
 	def setRenderArgs(self, *args):
 		"""
@@ -812,35 +801,35 @@ class _windowFrame(windowBase):
 	def update(self, RgineEvent, uMsg, absClientRect, Rect):
 		self._rel = (0, 0)
 		if uMsg == WindowsManager.WM_SETFOCUS:
-			self._frame_args["state"] = self.FOCUS
+			self._frame_state = self.FOCUS
 		elif uMsg == WindowsManager.WM_KILLFOCUS:
-			self._frame_args["state"] = self.NOFOCUS
+			self._frame_state = self.NOFOCUS
 
-		if self._frame_args["state"] == self.NOFOCUS:
+		if self._frame_state == self.NOFOCUS:
 			return False
 
 		if RgineEvent.isMouseHit(RgineEvent.MOUSE_LEFT) \
 				and (not absClientRect.collidepoint(RgineEvent.getMousePos())) \
 				and (Rect.collidepoint(RgineEvent.getMousePos())):
 			# print("init")
-			self._frame_args["frameMessage"] = True
+			self._frame_msg = True
 		elif RgineEvent.isMouseUp(RgineEvent.MOUSE_LEFT):
-			self._frame_args["frameMessage"] = False
+			self._frame_msg = False
 			# input("rel")
 
-		if self._frame_args["frameMessage"]:
+		if self._frame_msg:
 			wasDown = False
-			if self._frame_args["state"] == self.FOCUS or self._frame_args["state"] == self.UP:
+			if self._frame_state == self.FOCUS or self._frame_state == self.UP:
 				if RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT):
-					self._frame_args["state"] = self.DOWN
-			elif self._frame_args["state"] == self.DOWN:
+					self._frame_state = self.DOWN
+			elif self._frame_state == self.DOWN:
 				if not RgineEvent.isMouseDown(RgineEvent.MOUSE_LEFT):
-					self._frame_args["state"] = self.HIT
+					self._frame_state = self.HIT
 				wasDown = True
-			elif self._frame_args["state"] == self.HIT:
-				self._frame_args["state"] = self.UP
+			elif self._frame_state == self.HIT:
+				self._frame_state = self.UP
 
-			if self._frame_args["state"] == self.DOWN and wasDown:
+			if self._frame_state == self.DOWN and wasDown:
 				self._rel = RgineEvent.getMouseRel()
 		return True
 
