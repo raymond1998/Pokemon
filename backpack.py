@@ -43,6 +43,7 @@ class uiBackpack(rgine.windows.windowBase):
 
 		surf = pygame.Surface((400, 300), pygame.SRCALPHA)
 		surf.fill((111, 111, 111, 20))
+		pygame.draw.line(surf, (0, 0, 0), (0, 0), surf.get_size())
 		self._main_window = self._wm.CreateWindow(
 			self._wm.RegisterCompleteClass(uiBackpack_scroll),
 			(
@@ -76,26 +77,29 @@ class uiBackpack(rgine.windows.windowBase):
 class uiBackpack_scroll(rgine.windows.windowScrollable):
 	def __init__(self, wsize, winbk=None, *args):
 		super(uiBackpack_scroll, self).__init__(wsize, winbk, *args)
+		self.wmacros = rgine.windows.WindowsMacros()
+		self._test = 0
 
 	def init(self, hWnd):
 		self._handle = hWnd
 		self._state = 0
-
+		self._test = self._wm.CreateWindow(self.wmacros.WC_BUTTON, ((100, 20), None, "test_button"))
+		self._wm.MoveWindow(self._test, 100, 100)
 		return True
 
 	def callback(self, evt, uMsg):
-		subsurf = self._world.getSurface().subsurface(self._world.getRect())
-		self._world.clear(rect=self._world.getRect())
-		subsurf.blit(self._bk, (0, 0))
-
 		if self.getRect().collidepoint(evt.getMousePos()):
 			if evt.isMouseHit(evt.MOUSE_SCROLL_UP):
 				self._world.shiftV(-20)
 			elif evt.isMouseHit(evt.MOUSE_SCROLL_DOWN):
 				self._world.shiftV(+20)
 
+		subsurf = self._world.getSurface().subsurface(self._world.getRect())
+		self._world.clear(rect=self._world.getRect())
+		subsurf.blit(self._bk, (0, 0))
+
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(evt):
-			if self._world.getRect().collidepoint(*pos):
+			if pygame.Rect(self._world.getRect()).collidepoint(*pos):
 				self._world.blit(surface, pos)
 
 		return True
