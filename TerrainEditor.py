@@ -33,14 +33,14 @@ tRead.readTextureFromFile(textureFileName)
 tRead.readTerrain(terrainFileName)
 wRead = rgine.TerrainWorld(textureInfo["width"]*textureSize, textureInfo["height"]*textureSize)
 wRead.setTextureFormat(textureSize, textureSize)
-wRead.setScreenSize(8*textureSize, 20*textureSize)
+wRead.setProjectionSize(8*textureSize, 20*textureSize)
 tRead.render(wRead.getSurface())
 
 
 tWrite.readTextureFromFile(textureFileName)
 wWrite = rgine.TerrainWorld(TsizeW*textureSize, TsizeH*textureSize)
 wWrite.setTextureFormat(textureSize, textureSize)
-wWrite.setScreenSize(12*textureSize, 12*textureSize)
+wWrite.setProjectionSize(12*textureSize, 12*textureSize)
 tWrite.render(wWrite.getSurface())
 
 screen = pygame.display.set_mode((16*50, 9*50))
@@ -201,7 +201,7 @@ while running:
 					sx = wRead.getRect()[2]
 				if sy > wRead.getRect()[3]:
 					sy = wRead.getRect()[3]
-				wRead.setScreenSize(sx, sy)
+				wRead.setProjectionSize(sx, sy)
 				tRead.render(wRead.getSurface())
 				wReadRect = pygame.Rect(*(wReadOffset+wRead.getSize()))
 
@@ -238,7 +238,7 @@ while running:
 					sx = wWrite.getRect()[2]
 				if sy > wWrite.getRect()[3]:
 					sy = wWrite.getRect()[3]
-				wWrite.setScreenSize(sx, sy)
+				wWrite.setProjectionSize(sx, sy)
 				tWrite.render(wWrite.getSurface())
 				wWriteRect = pygame.Rect(*(wWriteOffset+wWrite.getSize()))
 

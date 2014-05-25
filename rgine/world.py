@@ -5,39 +5,42 @@ from common import *
 
 class World(object):
 		def __init__(self, width, height):
-				self._size = [width, height]
-				self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
-				self._rect = [0, 0, width, height]
+			self._size = [width, height]
+			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
+			self._rect = [0, 0, width, height]
 
-		def setScreenSize(self, width, height):
-				self._rect[2] = width
-				self._rect[3] = height
+		def setProjectionSize(self, width, height):
+			self._rect[2] = width
+			self._rect[3] = height
 
 		def setShift(self, x, y):
-				self._rect[0] = x
-				self._rect[1] = y
+			self._rect[0] = x
+			self._rect[1] = y
 
 		def resize(self, width, height):
 			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
 			self._size = [width, height]
 
 		def new(self):
-			self._surface.fill((0, 0, 0))
+			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
+
+		def clear(self, alpha=255, rect=None, flag=pygame.BLEND_RGBA_SUB):
+			self._surface.fill((0, 0, 0, alpha), rect, flag)
 
 		def shiftH(self, shift):
-				self._rect[0] += shift
-				if self._rect[0] < 0: self._rect[0] = 0
-				elif self._rect[0] > self._size[0] - self._rect[2]:
-						self._rect[0] = self._size[0] - self._rect[2]
+			self._rect[0] += shift
+			if self._rect[0] < 0: self._rect[0] = 0
+			elif self._rect[0] > self._size[0] - self._rect[2]:
+					self._rect[0] = self._size[0] - self._rect[2]
 
 		def shiftV(self, shift):
-				self._rect[1] += shift
-				if self._rect[1] < 0: self._rect[1] = 0
-				elif self._rect[1] > self._size[1] - self._rect[3]:
-						self._rect[1] = self._size[1] - self._rect[3]
+			self._rect[1] += shift
+			if self._rect[1] < 0: self._rect[1] = 0
+			elif self._rect[1] > self._size[1] - self._rect[3]:
+					self._rect[1] = self._size[1] - self._rect[3]
 
 		def render(self):
-				return self._surface.subsurface(self._rect)
+			return self._surface.subsurface(self._rect)
 
 		def render_s(self):
 			if self._rect[0] < 0: self._rect[0] = 0
@@ -62,13 +65,13 @@ class World(object):
 				return self.render()
 
 		def blit(self, surface, pos):
-				return self._surface.blit(surface, pos)
+			return self._surface.blit(surface, pos)
 
 		def getShift(self):
-				return self._rect[:2]
+			return self._rect[:2]
 
 		def getSurface(self):
-				return self._surface
+			return self._surface
 
 		def getRect(self):
 			return self._rect

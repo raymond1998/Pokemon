@@ -5,7 +5,7 @@ import pygame
 from common import *
 from surface_buffer import *
 import event
-
+import world
 
 
 
@@ -556,12 +556,10 @@ class windowBase(object):
 
 	def setRenderArgs(self, *args):
 		for i in range(len(args)):
-			if args[i] is None:
-				pass
-			elif i >= len(self._args):
+			if i >= len(self._args):
 				self._args.append(args[i])
 			else:
-				self._args[i] = args[i]
+				if args[i] is not None: self._args[i] = args[i]
 
 	def render(self):
 		"""
@@ -623,6 +621,8 @@ class _windowButton(windowBase):
 		# self._button_focus.fill((111, 111, 111, 60))
 		# self._button_down = pygame.Surface(self._bk.get_size(), pygame.SRCALPHA)
 		# self._button_down.fill((111, 111, 111, 100))
+		self._button_res_focus = pygame.transform.scale(_button_res_focus, wsize)
+		self._button_res_down = pygame.transform.scale(_button_res_down, wsize)
 		self._using = "mouse"
 
 	def setRenderArgs(self, *args):
@@ -638,11 +638,11 @@ class _windowButton(windowBase):
 		if self._state == self.NOFOCUS:
 			pass
 		elif self._state == self.FOCUS or self._state == self.UP:
-			bk.blit(_button_res_focus, (0, 0))
+			bk.blit(self._button_res_focus, (0, 0))
 		elif self._state == self.DOWN:
-			bk.blit(_button_res_down, (0, 0))
+			bk.blit(self._button_res_down, (0, 0))
 		elif self._state == self.HIT:
-			bk.blit(_button_res_focus, (0, 0))
+			bk.blit(self._button_res_focus, (0, 0))
 		else:
 			print(self._state)
 		Surface = self._args[1].render(*([self._args[0]]+self._args[2:4]))
@@ -1072,7 +1072,8 @@ class _windowTab(windowBase):
 			cx += self._buttonsize[0]
 
 		if self._buttons:
-			self._wm.SendMessage(self._buttons[-1][0], WindowsMacros.WM_KILLFOCUS)
+			# self._wm.SendMessage(self._buttons[-1][0], WindowsMacros.WM_KILLFOCUS)
+			self._wm.SetTopmost(-1, False)
 			self._state = self._buttons[0][1]
 			self._current_tab[0] = self._buttons[0][0]
 			self._current_tab[1] = (0, 0)
@@ -1106,6 +1107,43 @@ class _windowTab(windowBase):
 
 	def render(self):
 		return self._surf
+
+	def release(self):
+		self._wm.Release()
+
+	def getMsg(self):
+		return self._state
+
+
+class windowScrollable(windowBase):
+	def __init__(self, wsize, winbk=None, *args):
+		super(windowScrollable, self).__init__(wsize, winbk)
+		self.setRenderArgs(*args)
+
+		self._world = world.World(*args[0])
+		self._world.setProjectionSize(*wsize)
+		self._handle = 0
+		self._state = 0
+
+	def init(self, hWnd):
+		self._handle = hWnd
+		self._state = 0
+
+		return True
+
+	def callback(self, RgineEvent, uMsg):
+		subsurf = self._world.getSurface().subsurface(self._world.getRect())
+		self._world.clear(rect=self._world.getRect())
+		subsurf.blit(self._bk, (0, 0))
+
+		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
+			if self._world.getRect().collidepoint(*pos):
+				self._world.blit(surface, pos)
+
+		return True
+
+	def render(self):
+		return self._world.render_s()
 
 	def release(self):
 		self._wm.Release()

@@ -6,7 +6,7 @@ import sys
 path = sys.path[0]
 if not path: path = sys.path[1]
 _backpack_bk = rgine.surface_buffer.read_buffer(path+"/resources/backpack", 2560, 1600)
-
+_backpack_img = rgine.surface_buffer.read_buffer(path+"/resources/backpack_img", 52, 60)
 class uiBackpack(rgine.windows.windowBase):
 	def __init__(self, wsize, winbk=None, *args):
 		super(uiBackpack, self).__init__(wsize, winbk)
@@ -16,22 +16,50 @@ class uiBackpack(rgine.windows.windowBase):
 		self._handle = 0
 		self._surface = pygame.Surface(wsize, pygame.SRCALPHA)
 		self._surface.blit(self._bk, (0, 0))
+
+		self._surface.blit(
+			pygame.transform.scale(_backpack_img, (_backpack_img.get_width()*3, _backpack_img.get_height()*3))
+			, (self._surface.get_width()*1//10, self._surface.get_height()*1//10)
+		)
+
 		self._surf = None
 		self._state = 0
+		self._button_return = 0
+		self._tab = 0
+		self._main_window = 0
+		self.wmacros = rgine.windows.WindowsMacros()
 
 	def init(self, hWnd):
 		self._handle = hWnd
 		self._state = 0
+		self._button_return = self._wm.CreateWindow(self.wmacros.WC_BUTTON, ((100, 20), None, "Return"))
+		self._wm.MoveWindow(self._button_return, 100, 400)
+
+		self._tab = self._wm.CreateWindow(self.wmacros.WC_TAB, ((400, 100), None,
+						      (200, 50), None,
+						      [("Pokemon", 1), ("Backpack", 2)])
+		)
+		self._wm.MoveWindow(self._tab, 300, 50)
+
+		surf = pygame.Surface((400, 300), pygame.SRCALPHA)
+		surf.fill((111, 111, 111, 20))
+		self._main_window = self._wm.CreateWindow(
+			self._wm.RegisterCompleteClass(uiBackpack_scroll),
+			(
+			(400, 300), surf, (400, 600),
+			),
+		                                          )
+		self._wm.MoveWindow(self._main_window, 300, 125)
 
 		return True
 
 	def callback(self, evt, uMsg):
 		self._surf = self._surface.copy()
-		if evt.isKeyHit(pygame.K_9):
-			return False
 
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(evt):
 			self._surf.blit(surface, pos)
+			if hWnd == self._button_return and msg == self.wmacros.HIT:
+				return False
 
 		return True
 
@@ -43,6 +71,34 @@ class uiBackpack(rgine.windows.windowBase):
 
 	def getMsg(self):
 		return self._state
+
+
+class uiBackpack_scroll(rgine.windows.windowScrollable):
+	def __init__(self, wsize, winbk=None, *args):
+		super(uiBackpack_scroll, self).__init__(wsize, winbk, *args)
+
+	def init(self, hWnd):
+		self._handle = hWnd
+		self._state = 0
+
+		return True
+
+	def callback(self, evt, uMsg):
+		subsurf = self._world.getSurface().subsurface(self._world.getRect())
+		self._world.clear(rect=self._world.getRect())
+		subsurf.blit(self._bk, (0, 0))
+
+		if self.getRect().collidepoint(evt.getMousePos()):
+			if evt.isMouseHit(evt.MOUSE_SCROLL_UP):
+				self._world.shiftV(-20)
+			elif evt.isMouseHit(evt.MOUSE_SCROLL_DOWN):
+				self._world.shiftV(+20)
+
+		for hWnd, msg, surface, pos in self._wm.DispatchMessage(evt):
+			if self._world.getRect().collidepoint(*pos):
+				self._world.blit(surface, pos)
+
+		return True
 
 
 class Backpack(pEvent):

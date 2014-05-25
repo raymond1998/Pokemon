@@ -8,6 +8,7 @@ import wapisp
 
 
 
+
 pygame.init()
 import rgine as rgine
 
@@ -54,7 +55,7 @@ world = rgine.TerrainWorld(textureInfo["width"]*textureSize, textureInfo["height
 world.setTextureFormat(textureSize, textureSize)
 
 wOffset = (0, 32)
-world.setScreenSize(16*2*32-wOffset[0], 9*2*32-wOffset[1])
+world.setProjectionSize(16*2*32-wOffset[0], 9*2*32-wOffset[1])
 wRect = pygame.Rect(*(wOffset+world.getSize()))
 
 changed = True
@@ -160,7 +161,7 @@ while True:
 					sx = world.getRect()[2]
 				if sy > world.getRect()[3]:
 					sy = world.getRect()[3]
-				world.setScreenSize(sx, sy)
+				world.setProjectionSize(sx, sy)
 				terrain.render(world.getSurface())
 				wRect = pygame.Rect(*(wOffset+world.getSize()))
 				
