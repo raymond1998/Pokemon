@@ -98,9 +98,14 @@ class uiBackpack_scroll(rgine.windows.windowScrollable):
 		self._world.clear(rect=self._world.getRect())
 		subsurf.blit(self._bk, (0, 0))
 
+		sx, sy = self._world.getShift()
+		evt.shiftMousePos(sx, sy)
+
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(evt):
 			if pygame.Rect(self._world.getRect()).collidepoint(*pos):
 				self._world.blit(surface, pos)
+
+		evt.shiftMousePos(-sx, -sy)
 
 		return True
 

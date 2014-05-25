@@ -1136,9 +1136,14 @@ class windowScrollable(windowBase):
 		self._world.clear(rect=self._world.getRect())
 		subsurf.blit(self._bk, (0, 0))
 
+		sx, sy = self._world.getShift()
+		RgineEvent.shiftMousePos(sx, sy)
+
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
 			if self._world.getRect().collidepoint(*pos):
 				self._world.blit(surface, pos)
+
+		RgineEvent.shiftMousePos(-sx, -sy)
 
 		return True
 
