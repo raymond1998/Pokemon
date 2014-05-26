@@ -88,3 +88,21 @@ event.py -> optimized for pygame.MOUSEMOTION
 =====Rgine 0.0.0.0005 RC3=====
 
 major bug fixes for terrain.py
+
+=====Rgine 0.0.0.0006 RC1=====
+
+Bumped to 0.0.0.0006
+major bug fixes for windows.py
+several new features for windows.py:
+	WindowsManager.RegisterCompleteClass()
+	_windowBase -> windowBase
+	Editbox
+	Scrollable
+	Tab
+	...
+exception.py major changes
+loader.py & PgbarLoader src included
+world.py several changes
+progressbar.py added
+
+if no more bugs, this will be the stable version.
