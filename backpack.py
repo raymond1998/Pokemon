@@ -85,6 +85,7 @@ class uiBackpack_scroll(rgine.windows.windowScrollable):
 		self._state = 0
 		self._test = self._wm.CreateWindow(self.wmacros.WC_BUTTON, ((100, 20), None, "test_button"))
 		self._wm.MoveWindow(self._test, 100, 100)
+		self._wm.SetTopmost(-1, False)
 		return True
 
 	def callback(self, evt, uMsg):
@@ -97,6 +98,7 @@ class uiBackpack_scroll(rgine.windows.windowScrollable):
 		subsurf = self._world.getSurface().subsurface(self._world.getRect())
 		self._world.clear(rect=self._world.getRect())
 		subsurf.blit(self._bk, (0, 0))
+
 
 		sx, sy = self._world.getShift()
 		evt.shiftMousePos(sx, sy)

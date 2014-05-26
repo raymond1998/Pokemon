@@ -1083,26 +1083,38 @@ class _windowTab(windowBase):
 	def callback(self, RgineEvent, uMsg):
 		self._surf = self._surface.copy()
 
+		new_tab = self._current_tab[:]
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
+			if hWnd == self._current_tab[0]:
+				continue
+			if msg == WindowsMacros.UP or msg == WindowsMacros.FOCUS:
+				self._wm.SetTopmost(-1, False)
+				inst = self._wm.getInstance(hWnd)
+				surface = inst.render()
 			if msg == WindowsMacros.HIT:
 				for i in self._buttons:
 					if i[0] == hWnd:
 						self._state = i[1]
-						self._current_tab[0] = hWnd
-						self._current_tab[1] = pos
-						continue
-			elif msg == WindowsMacros.UP:
-				self._wm.SetTopmost(-1, False)
+						new_tab[0] = hWnd
+						new_tab[1] = pos
+
+						inst = self._wm.getInstance(hWnd)
+						inst._state = WindowsMacros.DOWN
+						surface = inst.render()
+						inst._state = WindowsMacros.HIT
+						break
+
 			self._surf.blit(surface, pos)
 
 		inst = self._wm.getInstance(self._current_tab[0])
 		if inst is not None:
 			t = inst._state
-			inst._state = WindowsMacros.HIT
+			inst._state = WindowsMacros.FOCUS
 			surf = inst.render()
 			self._surf.blit(surf, self._current_tab[1])
 			inst._state = t
 
+		self._current_tab = new_tab
 		return True
 
 	def render(self):
