@@ -8,9 +8,9 @@ from event import *
 from terrain import *
 from progressbar import *
 from world import *
+from loader import *
 import buildinfo
-import windows
-import surface_buffer
+
 path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 __version__ = buildinfo.get(path+"/__init__")
 __author__ = 'Charles-Jianye Chen'
