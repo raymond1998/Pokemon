@@ -161,13 +161,15 @@ class uiStatus(choice1):
 
 
 class Battle(pEvent):
-	def __init__(self):
+	def __init__(self, backpack, wm):
 		super(Battle, self).__init__()
 		self._scene = -1
 		self._activated = False
 		self._hWnds = {}
 		self._atk = None
 		self._def = None
+		self._backpack = backpack
+		self._g_wm = wm
 
 	def setFightingObjects(self, atk, defense):
 		if atk is not None: self._atk = atk
@@ -176,11 +178,13 @@ class Battle(pEvent):
 	def init(self, evt, wm):
 		if not self._activated:
 			atk, defense = self._atk, self._def
+			backpack = self._backpack
+			wm = self._g_wm
 			#if atk is None or defense is None: raise ValueError((atk, defense))
 			self._activated = True
 
 			def init(self, hWnd):
-				nonlocal atk, defense
+				nonlocal atk, defense, backpack, wm
 				self.wmacros = rgine.windows.WindowsMacros()
 				self._handle = hWnd
 				self._umsg = 0
@@ -190,6 +194,9 @@ class Battle(pEvent):
 
 				self._atk = atk
 				self._def = defense
+				self._backpack = backpack
+				self._backpack_mode = 0
+				self._g_wm = wm
 
 				winsize = 16*10, 9*10
 				self._hWnds["uistatus_atk"] = self._wm.CreateWindow(
@@ -263,6 +270,12 @@ class Battle(pEvent):
 					self._uiRunning = True
 					self._init_choice1(self)
 
+				if self._backpack_mode:
+					msg = self._backpack.getMsg()
+					if msg is None:
+						self._backpack_mode = 0
+					return True
+
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)
 					if hWnd  == self._hWnds["choice1"]:
@@ -273,9 +286,19 @@ class Battle(pEvent):
 							self._wm.SetTopmost(self._hWnds["choice2"], True)
 							self._uiRunning = True
 						elif msg == 1:
-							pass
+							if not self._backpack.isRunning():
+								self._backpack.setPlayer(self._atk)
+								self._backpack.setDefaultTab(2)
+								self._backpack.setStatic(True)
+								self._backpack.init(event, self._g_wm)
+								self._backpack_mode = 2
 						elif msg == 2:
-							pass
+							if not self._backpack.isRunning():
+								self._backpack.setPlayer(self._atk)
+								self._backpack.setDefaultTab(1)
+								self._backpack.setStatic(True)
+								self._backpack.init(event, self._g_wm)
+								self._backpack_mode = 1
 						elif msg == 3:
 							self._uiRunning = False
 							return False

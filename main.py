@@ -61,8 +61,9 @@ pEventList = []
 runningNpcEvent = base.NPC(None, None)
 
 uMenu = menu.init_menu(menu.buttons, menu.inst)
-uBattle = battle.Battle()
 uBackpack = backpack.Backpack(wm, pManager.getPlayer())
+uBattle = battle.Battle(uBackpack, wm)
+
 
 import time
 fps = 0

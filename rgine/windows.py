@@ -1050,6 +1050,11 @@ class _windowTab(windowBase):
 		# {button_name: getMsg return}
 		self._buttonsize = self._args[0]
 		self._button_img = self._args[1]
+		# _args[2] -> buttons
+		self._static = False
+		if len(self._args) >= 4:
+			print(self._args)
+			self._static = bool(self._args[3])
 		self._buttons = []
 		self._handle = 0
 		self._surface = pygame.Surface(wsize, pygame.SRCALPHA)
@@ -1080,12 +1085,19 @@ class _windowTab(windowBase):
 
 		return True
 
+	def set_tab(self, val):
+		for i in self._buttons:
+			if i[1] == val:
+				self._state = val
+				self._current_tab[0] = i[0]
+
 	def callback(self, RgineEvent, uMsg):
 		self._surf = self._surface.copy()
 
 		new_tab = self._current_tab[:]
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(RgineEvent):
 			if hWnd == self._current_tab[0]:
+				self._current_tab[1] = pos
 				continue
 			if msg == WindowsMacros.UP or msg == WindowsMacros.FOCUS:
 				self._wm.SetTopmost(-1, False)
@@ -1094,14 +1106,14 @@ class _windowTab(windowBase):
 			if msg == WindowsMacros.HIT:
 				for i in self._buttons:
 					if i[0] == hWnd:
-						self._state = i[1]
-						new_tab[0] = hWnd
-						new_tab[1] = pos
-
-						inst = self._wm.getInstance(hWnd)
-						inst._state = WindowsMacros.DOWN
-						surface = inst.render()
-						inst._state = WindowsMacros.HIT
+						if not self._static:
+							self._state = i[1]
+							new_tab[0] = hWnd
+							new_tab[1] = pos
+							inst = self._wm.getInstance(hWnd)
+							inst._state = WindowsMacros.DOWN
+							surface = inst.render()
+							inst._state = WindowsMacros.HIT
 						break
 
 			self._surf.blit(surface, pos)
