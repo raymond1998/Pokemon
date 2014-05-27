@@ -162,7 +162,7 @@ class Pokemon(Character):
 			return True
 
 class Player(Character):
-	def __init__(self,pokemons,items,name,level):
+	def __init__(self, pokemons, items, name, level):
 		global _CURRENT_ID
 		super(Player, self).__init__(name, TYPE_PLAYER, level)
 		self.id = _CURRENT_ID
@@ -170,12 +170,14 @@ class Player(Character):
 		self.pokemon=[]
 		self.backpack=[]
 
-		for pokemon in pokemons:
-			self.pokemon.append(pokemon)
-		for item in items:
-			self.backpack.append(item)
+		for i in pokemons:
+			self.pokemon.append(i)
+		for i in items:
+			self.backpack.append(i)
+
 	def addItem(self, item):
 		self.backpack.append(item)
+
 	def delItem(self, item):
 		self.backpack.remove(item)
 
