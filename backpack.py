@@ -204,7 +204,7 @@ class askbox(object):
 		self._hasresult = False
 		x, y, w, h = self.getRect()
 		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
-		self._buttons = {0: "ATTACK", 1: "BAG", 2:"POKEMON", 3:"RUN"}
+		self._buttons = {1: "Use", 2: "Abandon"}
 		self._hWnds = {}
 		cy = 0
 		x, y = self._wm.screensize
@@ -214,7 +214,9 @@ class askbox(object):
 		pygame.draw.rect(button_surf, (0, 0, 0), button_surf.get_rect(), 1)
 
 		t_handles = []
-		for i in self._buttons:
+		k = list(self._buttons.keys())
+		k.sort()
+		for i in k:
 			h = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
 								(button_size, button_surf, "%s"%self._buttons[i],
 												pygame.font.SysFont('Times New Romen', 16),
@@ -222,11 +224,9 @@ class askbox(object):
 			t_handles.append(h)
 			self._hWnds[h] = i
 
-		tx, ty = ((x//2)-button_size[0])//2, ((y//2)-button_size[1])//2
+		tx, ty = 0, 0
 		self._wm.MoveWindowToPos(t_handles[0], tx, ty)
 		self._wm.MoveWindowToPos(t_handles[1], tx+x//2, ty)
-		self._wm.MoveWindowToPos(t_handles[2], tx, ty+y//2)
-		self._wm.MoveWindowToPos(t_handles[3], tx+x//2, ty+y//2)
 		return True
 
 	def cb(self, event, uMsg):

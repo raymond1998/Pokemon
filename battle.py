@@ -29,7 +29,9 @@ class choice1(object):
 		pygame.draw.rect(button_surf, (0, 0, 0), button_surf.get_rect(), 1)
 
 		t_handles = []
-		for i in self._buttons:
+		k = list(self._buttons.keys())
+		k.sort()
+		for i in k:
 			h = self._wm.CreateWindow(self.wmacros.WC_BUTTON,
 								(button_size, button_surf, "%s"%self._buttons[i],
 												pygame.font.SysFont('Times New Romen', 16),
