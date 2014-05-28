@@ -256,6 +256,7 @@ class _BattleMain(rgine.windows.windowBase):
 			elif msg == -1:
 				self._backpack_mode = 0
 				if self._selecting_nxt:
+					# if user cancelled selection, just select the next one in the pocket
 					nxt = self._atk.getNextAlivePokemon()
 					self._atk.setCurrentPokemon(nxt.id)
 				self._update_cpokemon()
