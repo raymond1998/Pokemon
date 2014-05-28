@@ -1054,7 +1054,6 @@ class _windowTab(windowBase):
 		# _args[2] -> buttons
 		self._static = False
 		if len(self._args) >= 4:
-			print(self._args)
 			self._static = bool(self._args[3])
 		self._buttons = []
 		self._handle = 0

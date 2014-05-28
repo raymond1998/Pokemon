@@ -234,11 +234,13 @@ class _BattleMain(rgine.windows.windowBase):
 		self._init_choice1(self)
 		self._wm.SetTopmost(self._hWnds["choice1"], True)
 		self._uiRunning = True
+		self._selecting_nxt = False
 		return True
 
 
 	def callback(self, event, uMsg):
-		# self._bk_.fill((150, 150, 150, 255//2))
+		if uMsg == self.wmacros.WM_KILLFOCUS:
+			return True
 		self._bk_ = self._bk.copy()
 		x, y = self._wm.screensize
 		self._bk_.blit(self._atk.getCurrentPokemon().render(False), (0, y-self._atk.getCurrentPokemon().get_size()[1]-y+(y-16*8)*9.5//10))
@@ -253,6 +255,9 @@ class _BattleMain(rgine.windows.windowBase):
 				self._uiRunning = False
 			elif msg == -1:
 				self._backpack_mode = 0
+				if self._selecting_nxt:
+					nxt = self._atk.getNextAlivePokemon()
+					self._atk.setCurrentPokemon(nxt.id)
 				self._update_cpokemon()
 				self._hWnds["choice1"] = 0
 				self._hWnds["choice2"] = 0
@@ -273,14 +278,22 @@ class _BattleMain(rgine.windows.windowBase):
 					return True
 				else:
 					# launch ui_backpack select next
-					self._atk.setCurrentPokemon(nxt.id)
-			self._update_cpokemon()
-			self._hWnds["choice1"] = 0
-			self._hWnds["choice2"] = 0
+					self._selecting_nxt = True
+					if not self._backpack.isRunning():
+						self._backpack.setPlayer(self._atk)
+						self._backpack.setDefaultTab(1)
+						self._backpack.setStatic(True)
+						self._backpack.init(event, self._g_wm)
+						self._backpack_mode = 1
+						self._uiRunning = True
+			if not self._uiRunning:
+				self._update_cpokemon()
+				self._hWnds["choice1"] = 0
+				self._hWnds["choice2"] = 0
 
-			self._init_choice1(self)
-			self._wm.SetTopmost(self._hWnds["choice1"], True)
-			self._uiRunning = True
+				self._init_choice1(self)
+				self._wm.SetTopmost(self._hWnds["choice1"], True)
+				self._uiRunning = True
 
 		for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 			self._bk_.blit(surface, pos)
@@ -369,8 +382,6 @@ class Battle(pEvent):
 			wm = self._g_wm
 			#if atk is None or defense is None: raise ValueError((atk, defense))
 			self._activated = True
-
-
 
 			winsize = wm.screensize
 			surf = pygame.transform.scale(_battle_bk, winsize).convert()
