@@ -162,7 +162,188 @@ class uiStatus(choice1):
 		return self._bk_
 
 
+class _BattleMain(rgine.windows.windowBase):
+	def _create_cpokemon(self):
+		winsize = 16*10, 9*10
+		self._hWnds["uistatus_atk"] = self._wm.CreateWindow(
+			self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
+			(winsize, None, self._atk.getCurrentPokemon())
+			)
+
+		x, y = self._wm.screensize
+		self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, 0)
+
+		winsize = 16*10, 9*10
+		self._hWnds["uistatus_def"] = self._wm.CreateWindow(
+			self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
+			(winsize, None, self._def.getCurrentPokemon())
+			)
+
+		x, y = self._wm.screensize
+		self._wm.MoveWindow(self._hWnds["uistatus_def"], x-winsize[0], 0)
+
+		def c_choice1(self):
+			winsize = 16*12, 16*8
+			self._hWnds["choice1"] = self._wm.CreateWindow(
+				self._wm.RegisterClass(False, choice1.init, choice1.cb, choice1.rd, choice1.getMsg, choice1.rel),
+				(winsize, None)
+				)
+			x, y = self._wm.screensize
+			self._wm.MoveWindow(self._hWnds["choice1"], (x-winsize[0])*9.5//10, (y-winsize[1])*9.5//10)
+
+		self._init_choice1 = c_choice1
+		def c_choice2(self):
+			winsize = 16*30, 16*8
+			self._hWnds["choice2"] = self._wm.CreateWindow(
+				self._wm.RegisterClass(False, choice2.init, choice2.cb, choice2.rd, choice2.getMsg, choice2.rel),
+				(winsize, None, self._atk.getCurrentPokemon().getSkills())
+				)
+
+			x, y = self._wm.screensize
+			self._wm.MoveWindow(self._hWnds["choice2"], (x-winsize[0])*1//10, (y-winsize[1])*9.5//10)
+
+		self._init_choice2 = c_choice2
+
+	def _update_cpokemon(self):
+		if self._wm.isWindowPresent(self._hWnds["uistatus_atk"]): self._wm.DestroyWindow(self._hWnds["uistatus_atk"])
+		if self._wm.isWindowPresent(self._hWnds["uistatus_def"]): self._wm.DestroyWindow(self._hWnds["uistatus_def"])
+		self._create_cpokemon()
+
+	def set_args(self, atk, defense, backpack, wm):
+		self._atk = atk
+		self._def = defense
+		self._backpack = backpack
+		self._backpack_mode = 0
+		self._g_wm = wm
+
+	def init(self, hWnd):
+		self.wmacros = rgine.windows.WindowsMacros()
+		self._handle = hWnd
+		self._umsg = 0
+		w, h = self._size
+		self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
+		self._hWnds = {}
+
+		self.set_args(*self._args[:5])
+
+		self._create_cpokemon()
+
+		self._hWnds["choice1"] = 0
+		self._hWnds["choice2"] = 0
+
+		self._init_choice1(self)
+		self._wm.SetTopmost(self._hWnds["choice1"], True)
+		self._uiRunning = True
+		return True
+
+
+	def callback(self, event, uMsg):
+		# self._bk_.fill((150, 150, 150, 255//2))
+		self._bk_ = self._bk.copy()
+		x, y = self._wm.screensize
+		self._bk_.blit(self._atk.getCurrentPokemon().render(False), (0, y-self._atk.getCurrentPokemon().get_size()[1]-y+(y-16*8)*9.5//10))
+		self._bk_.blit(self._def.getCurrentPokemon().render(True), (x-160-self._atk.getCurrentPokemon().get_size()[0], 0))
+
+		if self._backpack_mode:
+			msg = self._backpack.getMsg()
+			if msg is None:
+				self._backpack_mode = 0
+				self._wm.DestroyWindow(self._hWnds["choice1"])
+				self._wm.DestroyWindow(self._hWnds["choice2"])
+				self._uiRunning = False
+			elif msg == -1:
+				self._backpack_mode = 0
+				self._update_cpokemon()
+				self._hWnds["choice1"] = 0
+				self._hWnds["choice2"] = 0
+
+				self._init_choice1(self)
+				self._wm.SetTopmost(self._hWnds["choice1"], True)
+				self._uiRunning = True
+
+		if not self._uiRunning:
+			import random
+			ski = random.randint(0, 3)
+			self._def.getCurrentPokemon().attack(self._atk.getCurrentPokemon(), ski)
+			if not self._atk.getCurrentPokemon().getHP():
+				nxt = self._atk.getNextAlivePokemon()
+				if nxt is None:
+					# if no more alive ones, just return
+					self._umsg = DEF
+					return True
+				else:
+					# launch ui_backpack select next
+					self._atk.setCurrentPokemon(nxt.id)
+			self._update_cpokemon()
+			self._hWnds["choice1"] = 0
+			self._hWnds["choice2"] = 0
+
+			self._init_choice1(self)
+			self._wm.SetTopmost(self._hWnds["choice1"], True)
+			self._uiRunning = True
+
+		for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
+			self._bk_.blit(surface, pos)
+			if hWnd  == self._hWnds["choice1"]:
+				r, msg = msg
+				if not r: continue
+				if msg == 0:
+					self._init_choice2(self)
+					self._wm.SetTopmost(self._hWnds["choice2"], True)
+					self._uiRunning = True
+				elif msg == 1:
+					if not self._backpack.isRunning():
+						self._backpack.setPlayer(self._atk)
+						self._backpack.setDefaultTab(2)
+						self._backpack.setStatic(True)
+						self._backpack.init(event, self._g_wm)
+						self._backpack_mode = 2
+				elif msg == 2:
+					if not self._backpack.isRunning():
+						self._backpack.setPlayer(self._atk)
+						self._backpack.setDefaultTab(1)
+						self._backpack.setStatic(True)
+						self._backpack.init(event, self._g_wm)
+						self._backpack_mode = 1
+				elif msg == 3:
+					self._uiRunning = False
+					return False
+			if hWnd == self._hWnds["choice2"]:
+				r, msg = msg
+				if not r: continue
+				if msg == -1:   # return to choice 1 menu
+					tpmst = self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().GetTopmost()
+					self._wm.DestroyWindow(self._hWnds["choice1"])
+					self._wm.DestroyWindow(self._hWnds["choice2"])
+					self._init_choice1(self)
+					self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().SetTopmost(tpmst)
+					self._uiRunning = True
+				else:
+					self._atk.getCurrentPokemon().attack(self._def.getCurrentPokemon(), msg)
+					if not self._def.getCurrentPokemon().getHP():
+						nxt = self._def.getNextAlivePokemon()
+						if nxt is None:
+							self._umsg = ATK
+							return True
+						else:
+							self._def.setCurrentPokemon(nxt.id)
+					self._wm.DestroyWindow(self._hWnds["choice1"])
+					self._wm.DestroyWindow(self._hWnds["choice2"])
+					self._uiRunning = False
+		return True
+
+	def render(self):
+		return self._bk_
+
+	def getMsg(self):
+		return self._umsg
+
+	def release(self):
+		self._wm.Release()
+
+
 class Battle(pEvent):
+	# now taking player objects
 	def __init__(self, backpack, wm):
 		super(Battle, self).__init__()
 		self._scene = -1
@@ -170,10 +351,14 @@ class Battle(pEvent):
 		self._hWnds = {}
 		self._atk = None
 		self._def = None
+		self._init_choice1 = lambda x: x
+		self._init_choice2 = lambda x: x
 		self._backpack = backpack
 		self._g_wm = wm
+		self._uiRunning = False
 
 	def setFightingObjects(self, atk, defense):
+		# player objects
 		if atk is not None: self._atk = atk
 		if defense is not None: self._def = defense
 
@@ -185,168 +370,14 @@ class Battle(pEvent):
 			#if atk is None or defense is None: raise ValueError((atk, defense))
 			self._activated = True
 
-			def init(self, hWnd):
-				nonlocal atk, defense, backpack, wm
-				self.wmacros = rgine.windows.WindowsMacros()
-				self._handle = hWnd
-				self._umsg = 0
-				w, h = self._size
-				self._bk_ = pygame.Surface((w, h), pygame.SRCALPHA)
-				self._hWnds = {}
 
-				self._atk = atk
-				self._def = defense
-				self._backpack = backpack
-				self._backpack_mode = 0
-				self._g_wm = wm
-
-				winsize = 16*10, 9*10
-				self._hWnds["uistatus_atk"] = self._wm.CreateWindow(
-					self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
-					(winsize, None, self._atk)
-					)
-
-				x, y = self._wm.screensize
-				# self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, y-winsize[1])
-				self._wm.MoveWindow(self._hWnds["uistatus_atk"], 0, 0)
-
-				winsize = 16*10, 9*10
-				self._hWnds["uistatus_def"] = self._wm.CreateWindow(
-					self._wm.RegisterClass(False, uiStatus.init, uiStatus.cb, uiStatus.rd, uiStatus.getMsg, uiStatus.rel),
-					(winsize, None, self._def)
-					)
-
-				x, y = self._wm.screensize
-				self._wm.MoveWindow(self._hWnds["uistatus_def"], x-winsize[0], 0)
-				# self._wm.MoveWindow(self._hWnds["uistatus_def"], 0, 0)
-
-				def c_choice1(self):
-					winsize = 16*12, 16*8
-					self._hWnds["choice1"] = self._wm.CreateWindow(
-						self._wm.RegisterClass(False, choice1.init, choice1.cb, choice1.rd, choice1.getMsg, choice1.rel),
-						(winsize, None)
-						)
-					x, y = self._wm.screensize
-					self._wm.MoveWindow(self._hWnds["choice1"], (x-winsize[0])*9.5//10, (y-winsize[1])*9.5//10)
-
-				self._init_choice1 = c_choice1
-				def c_choice2(self):
-					winsize = 16*30, 16*8
-					self._hWnds["choice2"] = self._wm.CreateWindow(
-						self._wm.RegisterClass(False, choice2.init, choice2.cb, choice2.rd, choice2.getMsg, choice2.rel),
-						(winsize, None, self._atk.getSkills())
-						)
-
-					x, y = self._wm.screensize
-					self._wm.MoveWindow(self._hWnds["choice2"], (x-winsize[0])*1//10, (y-winsize[1])*9.5//10)
-
-				self._init_choice2 = c_choice2
-
-				self._hWnds["choice1"] = 0
-				self._hWnds["choice2"] = 0
-
-				self._init_choice1(self)
-				self._wm.SetTopmost(self._hWnds["choice1"], True)
-
-				# self._proc = BattleProcedure(self._wm.screensize, self._atk, self._defense)
-				self._uiRunning = True
-				return True
-
-
-			def cb(self, event, uMsg):
-				# self._bk_.fill((150, 150, 150, 255//2))
-				self._bk_ = self._bk.copy()
-				x, y = self._wm.screensize
-				self._bk_.blit(self._atk.render(False), (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
-				# t = pygame.Surface((self._atk.get_size()), pygame.SRCALPHA)
-				# pygame.draw.rect(t, (255, 0, 0), t.get_rect(), 1)
-				# self._bk_.blit(t, (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
-				self._bk_.blit(self._def.render(True), (x-160-self._atk.get_size()[0], 0))
-
-				if self._backpack_mode:
-					msg = self._backpack.getMsg()
-					if msg is None:
-						self._backpack_mode = 0
-						# self._atk.attack(self._def, msg)
-						# if not self._def.getHP():
-						# 	self._umsg = ATK
-						# 	return True
-						self._wm.DestroyWindow(self._hWnds["choice1"])
-						self._wm.DestroyWindow(self._hWnds["choice2"])
-						self._uiRunning = False
-					# return True
-
-				if not self._uiRunning:
-					import random
-					ski = random.randint(0, 3)
-					self._def.attack(self._atk, ski)
-					if not self._atk.getHP():
-						self._umsg = DEF
-						return True
-					self._uiRunning = True
-					self._init_choice1(self)
-
-				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
-					self._bk_.blit(surface, pos)
-					if hWnd  == self._hWnds["choice1"]:
-						r, msg = msg
-						if not r: continue
-						if msg == 0:
-							self._init_choice2(self)
-							self._wm.SetTopmost(self._hWnds["choice2"], True)
-							self._uiRunning = True
-						elif msg == 1:
-							if not self._backpack.isRunning():
-								self._backpack.setPlayer(self._atk)
-								self._backpack.setDefaultTab(2)
-								self._backpack.setStatic(True)
-								self._backpack.init(event, self._g_wm)
-								self._backpack_mode = 2
-						elif msg == 2:
-							if not self._backpack.isRunning():
-								self._backpack.setPlayer(self._atk)
-								self._backpack.setDefaultTab(1)
-								self._backpack.setStatic(True)
-								self._backpack.init(event, self._g_wm)
-								self._backpack_mode = 1
-						elif msg == 3:
-							self._uiRunning = False
-							return False
-					if hWnd == self._hWnds["choice2"]:
-						r, msg = msg
-						if not r: continue
-						if msg == -1:   # return to choice 1 menu
-							tpmst = self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().GetTopmost()
-							self._wm.DestroyWindow(self._hWnds["choice1"])
-							self._wm.DestroyWindow(self._hWnds["choice2"])
-							self._init_choice1(self)
-							self._wm.getInstance(self._hWnds["choice1"]).getWindowsManager().SetTopmost(tpmst)
-							self._uiRunning = True
-						else:
-							self._atk.attack(self._def, msg)
-							if not self._def.getHP():
-								self._umsg = ATK
-								return True
-							self._wm.DestroyWindow(self._hWnds["choice1"])
-							self._wm.DestroyWindow(self._hWnds["choice2"])
-							self._uiRunning = False
-				return True
-
-			def rd(self):
-				return self._bk_
-
-			def getMsg(self):
-				return self._umsg
-
-			def rel(self):
-				self._wm.Release()
 
 			winsize = wm.screensize
 			surf = pygame.transform.scale(_battle_bk, winsize).convert()
 			surf.set_alpha(200)
 			self._scene = wm.CreateWindow(
-				wm.RegisterClass(False, init, cb, rd, getMsg, rel),
-				(winsize, surf)
+				wm.RegisterCompleteClass(_BattleMain),
+				(winsize, surf, atk, defense, backpack, wm)
 				)
 			x, y = wm.screensize
 			wm.MoveWindow(self._scene, (x-winsize[0])//2, (y-winsize[1])//2)

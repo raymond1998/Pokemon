@@ -469,7 +469,7 @@ class windowBase(object):
 	_render_font_args = [_default_font, True, (255, 255, 255)]
 	_render_font_text = "Text"
 
-	def __init__(self, winsize, winbk=None):
+	def __init__(self, winsize, winbk=None, *args):
 		"""
 		:tuple winsize:
 		:pygame.Surface winbk:
@@ -482,7 +482,7 @@ class windowBase(object):
 			self._bk = pygame.transform.scale(winbk, winsize)
 		self._args = []
 		self._pos = [0, 0]
-
+		self.setRenderArgs(*args)
 		class _WindowsManager(WindowsManager):
 			def __init__(self, *args):
 				super(_WindowsManager, self).__init__(*args)
@@ -593,7 +593,8 @@ class _windowText(windowBase):
 					 *self._render_font_args[1:])
 
 		self.setRenderArgs(*args)
-		self._bk.blit(render_text(*([self._size]+self._args)), (0, 0))
+		surf = render_text(*([self._size]+self._args))
+		self._bk.blit(surf, ((self._size[0]-surf.get_width())//2, (self._size[1]-surf.get_height())//2))
 
 	def setRenderArgs(self, *args):
 		"""

@@ -45,13 +45,19 @@ class uiBackpack(rgine.windows.windowBase):
 		self.hClass = self._wm.RegisterCompleteClass(uiBackpack_scroll)
 		self._askbox = 0
 		self._askbox_item = 0
+		self._current_pokemon = 0
 
 	def _create_w_pokemon(self, bk):
+		def f(x):
+			if x.getHP() == 0:
+				return x.name+" (dead) ", -1    # could not use dead ones
+			return x.name, x.id
+
 		self._main_window_pokemon = self._wm.CreateWindow(
 				self.hClass,
 				(
 				(400, 300), bk, (400, 600),
-				[("pokemon!", 1), ("whatever", 2)],
+				list(map(f, list(self.player.pokemon)[1:])),
 				)
 	                                          )
 		self._wm.MoveWindow(self._main_window_pokemon, 300, 125)
@@ -65,6 +71,14 @@ class uiBackpack(rgine.windows.windowBase):
 				)
 	                                          )
 		self._wm.MoveWindow(self._main_window_backpack, 300, 125)
+
+	def _update_current_pokemon(self):
+		if self._wm.isWindowPresent(self._current_pokemon): self._wm.DestroyWindow(self._current_pokemon)
+		self._current_pokemon = self._wm.CreateWindow(self.wmacros.WC_TEXT, ((400, 25), None,
+		                                        "Current Pokemon: %s"%self.player.getCurrentPokemon().name,
+												pygame.font.SysFont('Times New Romen', 16),
+												True, (255, 255, 255)), True)
+		self._wm.MoveWindow(self._current_pokemon, 300, 25)
 
 	def init(self, hWnd):
 		self._handle = hWnd
@@ -93,6 +107,7 @@ class uiBackpack(rgine.windows.windowBase):
 
 		self._create_w_backpack(surf)
 		self._create_w_pokemon(surf)
+		self._update_current_pokemon()
 
 		return True
 
@@ -119,17 +134,21 @@ class uiBackpack(rgine.windows.windowBase):
 			if self._ctab == 2 and hWnd == self._main_window_pokemon:
 				continue
 			self._surf.blit(surface, pos)
+
+			if self._state == -1: return False
 			if hWnd == self._button_return and msg == self.wmacros.HIT:
-				return False
+				self._state = -1
+				return True
 			elif hWnd == self._tab:
 				if msg != self._ctab:
 					t_tab = msg
 
 			if hWnd == self._main_window_pokemon and msg != 0 and not self._askbox:
-				self._askbox = self.create_askbox()
-				self._wm.MoveWindow(self._askbox, 350, 300)
-				self._wm.SetTopmost(self._askbox, True)
-				self._askbox_item = msg
+				if msg != -1:   # invalid msg -> dead ones
+					self._askbox = self.create_askbox()
+					self._wm.MoveWindow(self._askbox, 350, 300)
+					self._wm.SetTopmost(self._askbox, True)
+					self._askbox_item = msg
 			elif hWnd == self._main_window_backpack and msg != 0 and not self._askbox:
 				self._askbox = self.create_askbox()
 				self._wm.MoveWindow(self._askbox, 350, 300)
@@ -144,7 +163,13 @@ class uiBackpack(rgine.windows.windowBase):
 					print("Use")
 					# self.player.useItem()
 					if self._ctab == 1:
-						pass
+						self.player.setCurrentPokemon(self._askbox_item)
+						self._wm.DestroyWindow(self._main_window_pokemon)
+						surf = pygame.Surface((400, 300), pygame.SRCALPHA)
+						surf.fill((111, 111, 111, 20))
+						pygame.draw.line(surf, (0, 0, 0), (0, 0), surf.get_size())
+						self._create_w_pokemon(surf)
+						self._update_current_pokemon()
 					elif self._ctab == 2:
 						self.player.useItem(self._askbox_item)
 						self._wm.DestroyWindow(self._main_window_backpack)

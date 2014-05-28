@@ -163,19 +163,21 @@ while True:
 	# Battle
 	if evt.isKeyHit(pygame.K_0) and not uBattle.isRunning():
 		t1 = libpkmon.Pokemon()
-		t1.load(4, 5000+400)
+		t1.load(4, 0000+400)
 		t2 = libpkmon.Pokemon()
 		t2.load(1, 500*9+300)
-		uBattle.setFightingObjects(t1, t2)
+		t2.load(1, 500)
+		p = libpkmon.Player([t2, t1], [], "name", 0, 0)
+		uBattle.setFightingObjects(player, p)
 		uBattle.init(evt, wm)
 	elif evt.isKeyHit(pygame.K_0):
 		uBattle.release(wm)
 	result = uBattle.render(evt, wm)[1]
 	if result is not None and result != 0:
 		if result == battle.ATK:
-			print("Winner: ATK, %s"%uBattle._atk.getName())
+			print("Winner: ATK, %s"%uBattle._atk.getCurrentPokemon().getName())
 		elif result == battle.DEF:
-			print("Winner: DEF, %s"%uBattle._def.getName())
+			print("Winner: DEF, %s"%uBattle._def.getCurrentPokemon().getName())
 		else:
 			raise ValueError(result)
 		uBattle.release(wm)

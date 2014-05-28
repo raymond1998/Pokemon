@@ -576,11 +576,12 @@ def Damage(Level,BaseP,SpAtk,SpDef,r,STAB,Weakness,CH):
 ##userattack=(UserPoke[0][4][int(userattackchoice)-1])
 ##
 
+_POKEMON_ID = 0
 class Pokemon(object):
 	def __init__(self):
 		self._exp = -1
 		self.level = -1
-		self.ID = -1
+		self.tID = -1
 		self.SpAtk = -1
 		self.SpDef = -1
 		self.type1 = -1
@@ -590,28 +591,32 @@ class Pokemon(object):
 		self.skill = []
 		self.image_front = None
 		self.image_back = None
+		self.name = ""
+		self.id = 0
 
-
-	def load(self, identifer, xp):
+	def load(self, identifer, xp, name=None):
+		global _POKEMON_ID
+		_POKEMON_ID += 1
+		self.id = _POKEMON_ID
 		self._exp = xp
 		self.level = self._exp/500
-		self.ID = identifer
+		self.tID = identifer
 		self.SpAtk = PokeStat[identifer][3][0]+(self.level/2)
 		self.SpDef = PokeStat[identifer][3][1]+(self.level/2)
 		self.type1 = PokeStat[identifer][1][0]
 		self.type2 = PokeStat[identifer][1][-1]
 		self.hp = self.level*4
 		self.maxhp = self.level*4
-		self.skill = PokeStat[self.ID][4][:]
+		self.skill = PokeStat[identifer][4][:]
 		self.image_front = None
 		self.image_back = None
-
+		if name is None: self.name = self.getName()
 
 	def getID(self):
-		return self.ID
+		return self.tID
 
 	def getName(self):
-		return PokeStat[self.ID][0][0]
+		return PokeStat[self.tID][0][0]
 
 	def getHP(self):
 		return self.hp
@@ -623,7 +628,6 @@ class Pokemon(object):
 		return self.skill
 
 	def getSkillP(self,skillno):
-
 		return attack[self.getSkill(skillno)][1][0][0]
 
 	def getSkillT(self,skillno):
@@ -657,11 +661,12 @@ class Pokemon(object):
 
 	def render(self, front=True):   # basic image -> no anim.
 		if self.image_front is None:
-			self.image_front = pygame.image.load(path+"/pokedex-media/pokemon/main-sprites/platinum/%d.png"%self.ID)\
+			self.image_front = pygame.image.load(path+"/pokedex-media/pokemon/main-sprites/platinum/%d.png"%self.tID)\
 				.convert_alpha()
 			self.image_front = pygame.transform.scale(self.image_front, (200, 200))
 		if self.image_back is None:
-			self.image_back = pygame.image.load(path+"/pokedex-media/pokemon/main-sprites/platinum/back/%d.png"%self.ID)\
+			self.image_back = pygame.image.load(path+"/pokedex-media/pokemon/main-sprites/platinum/back/%d.png"%
+			                                    self.tID)\
 				.convert_alpha()
 			self.image_back = pygame.transform.scale(self.image_back, (200, 200))
 		if front: return self.image_front
@@ -719,12 +724,36 @@ class Player(Character):
 		self.pokemon = []
 		self.backpack = {}
 		self.money = money
-
+		if not pokemons: raise ValueError(len(pokemons))    # at least one
 		for i in pokemons:
 			self.pokemon.append(i)
 		for i in items:
 			i.setOwner(self)
 			self.backpack[i.id] = i
+
+	def getCurrentPokemon(self):
+		return self.pokemon[0]
+
+	def addPokemon(self, Pokemon_inst):
+		self.pokemon.append(Pokemon_inst)
+
+	def delPokemon(self, p_uniq_id):
+		if self.getCurrentPokemon().id == p_uniq_id: raise ValueError("COULD NOT DEL CURRENT POKEMON")
+		for i in self.pokemon:
+			if i.id == p_uniq_id:
+				self.pokemon.remove(i)
+
+	def getNextAlivePokemon(self):
+		for i in self.pokemon:
+			if i.getHP() > 0:
+				return i
+		return None
+
+	def setCurrentPokemon(self, p_uniq_id):
+		if self.getCurrentPokemon().id != p_uniq_id:
+			for i in range(len(self.pokemon)):
+				if self.pokemon[i].id == p_uniq_id:
+					self.pokemon.insert(0, self.pokemon.pop(i))
 
 	def addItem(self, item_inst):
 		if issubclass(item_inst.__class__, item): self.backpack[item_inst.id](item_inst)
@@ -808,5 +837,9 @@ class juice(item):
 		print("Yes")
 		return True
 
-player = Player([], [juice("juice", 3)], "name", 0, 0)
+p1 = Pokemon()
+p1.load(1, 550)
+p2 = Pokemon()
+p2.load(2, 600)
+player = Player([p1, p2], [juice("juice", 3)], "name", 0, 0)
 player.setPos(0, 10)
