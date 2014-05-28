@@ -262,6 +262,20 @@ class Battle(pEvent):
 				# pygame.draw.rect(t, (255, 0, 0), t.get_rect(), 1)
 				# self._bk_.blit(t, (0, y-self._atk.get_size()[1]-y+(y-16*8)*9.5//10))
 				self._bk_.blit(self._def.render(True), (x-160-self._atk.get_size()[0], 0))
+
+				if self._backpack_mode:
+					msg = self._backpack.getMsg()
+					if msg is None:
+						self._backpack_mode = 0
+						# self._atk.attack(self._def, msg)
+						# if not self._def.getHP():
+						# 	self._umsg = ATK
+						# 	return True
+						self._wm.DestroyWindow(self._hWnds["choice1"])
+						self._wm.DestroyWindow(self._hWnds["choice2"])
+						self._uiRunning = False
+					# return True
+
 				if not self._uiRunning:
 					import random
 					ski = random.randint(0, 3)
@@ -271,12 +285,6 @@ class Battle(pEvent):
 						return True
 					self._uiRunning = True
 					self._init_choice1(self)
-
-				if self._backpack_mode:
-					msg = self._backpack.getMsg()
-					if msg is None:
-						self._backpack_mode = 0
-					return True
 
 				for hWnd, msg, surface, pos in self._wm.DispatchMessage(event):
 					self._bk_.blit(surface, pos)

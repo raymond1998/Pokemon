@@ -1,7 +1,7 @@
 import random
 import time as TIME
 
-from pygame import *
+import pygame
 
 from resources_loader import *
 
@@ -9,8 +9,7 @@ from resources_loader import *
 
 
 
-
-_CURRENT_ID = 0
+# _CURRENT_ID = 0
 UP = 0
 DOWN = 1
 RIGHT = 2
@@ -20,12 +19,12 @@ TYPE_PLAYER = 0
 TYPE_NPC = 1
 
 _res = {}
-screen = display.set_mode((1,1))
+screen = pygame.display.set_mode((1,1))
 t=res_walk(pygame.image.load("pic1.png").convert_alpha(),3,4,FRONT_LEFT_RIGHT_BACK)
 _res["name"] = t[0]
-display.quit()
+pygame.display.quit()
 
-class _object(object):
+class g_object(object):
 	def __init__(self, typ, name):
 		self._type = typ
 		self._name = name
@@ -120,84 +119,4 @@ class _object(object):
 		pass
 
 
-class Character(_object):
-	def __init__(self,name,typ,level):
-		self._level=level
-		super(Character, self).__init__(typ, name)
 
-	def update(self, evt, wm):
-##        if
-##            x=Surface((800,600))
-##            x.blit(self.update_(evtid), (0, 0))
-##                return x
-##            if evt.isMouseHit and evt.getMousePos()== :
-		return False
-
-		#msgloop
-		#in the msgloop
-		#you call
-		#self.update_(evtid)
-		#which should be overwritten by its subclasses
-
-
-
-	def update_(self, evtid):
-		pass
-
-class Pokemon(Character):
-	def __init__(self,name,typ,level):
-		super(Pokemon, self).__init__(name, typ, level)
-		self.hp =100
-		self.A1 = ["attack",[0,10],5,2]
-
-	def defence(self,pokemon):
-		dmgDealt=int(pokemon.A1[1][random.randint[pokemon.A1[1][0]:pokemon.A1[1][-1]]])*pokemon.A1[3]
-		self.hp=self.hp-dmgDelt
-		return self.hp
-
-	def isAlive(self, hp):
-		if hp==0:
-			return False
-		else:
-			return True
-
-class Player(Character):
-	def __init__(self, pokemons, items, name, level):
-		global _CURRENT_ID
-		super(Player, self).__init__(name, TYPE_PLAYER, level)
-		self.id = _CURRENT_ID
-		_CURRENT_ID += 1
-		self.pokemon=[]
-		self.backpack=[]
-
-		for i in pokemons:
-			self.pokemon.append(i)
-		for i in items:
-			self.backpack.append(i)
-
-	def addItem(self, item):
-		self.backpack.append(item)
-
-	def delItem(self, item):
-		self.backpack.remove(item)
-
-class NPC(Character):
-	def __init__(self,pos,pokemons,name,level):
-		super(NPC, self).__init__(name, TYPE_NPC, level)
-		self.pokemon=[]
-		for pokemon in pokemons:
-			self.pokemon.append(pokemon)
-		self._NPCTalk=0
-		self._NPCEVENT=False
-
-		def npcTalk(self):
-			if self.NPCEVENT:
-				self._NPCTALK+=1
-				self.NPCEVENT=False
-
-		def npcText(self):
-			pass
-
-
-player = Player([], [], "name", 0)
-player.setPos(0, 10)

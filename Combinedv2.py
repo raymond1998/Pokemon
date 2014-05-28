@@ -6,8 +6,7 @@ import pygame
 
 
 
-
-##import rgine
+from ChiangObjectives import *
 
 import sys
 path = sys.path[0]
@@ -79,7 +78,7 @@ def PokeType(code):
 
 def Pokelevel(name):
 	for i in range (len(UserPoke)):
-		print(UserPoke[i][0][0])
+		# print(UserPoke[i][0][0])
 		if UserPoke[i][0][0]==name:
 			return trunc(UserPoke[i][2][0]/500)
 
@@ -261,7 +260,7 @@ PokeStat={1:[['Bulbasaur'],["Gra","Poi"],[],[49,49],["Razor_Leaf","Vine_Whip","T
 																											   "of Evolution"]],
 		  150:[["Mewtwo"],["Psy"],[],[110,90],["Psychic","Swift","Psycho_Cut","Aura_Sphere"],["Final Stage of Evolution"]],
 		  151:[["Mew"],["Fsy"],[],[100,100],["Psychic","Pyscho_Cut","Thunder","Ice_Beam"],["Final Stage of Evolution"]]}
-print(PokeStat[10][4][0])
+# print(PokeStat[10][4][0])
 attack={
 
 		"Bug_Bite":[["Bug"],[[60],[100],[20]],[None]],
@@ -692,12 +691,122 @@ class Pokemon(object):
 ##             BonusCalc((attack[userattack][0][0]),opp[0][1][0],opp[0][1][-1]),\
 ##             1)))
 
-a = Pokemon()
-a.load(10, 2500)
-b = Pokemon()
-b.load(15, 4000)
-print(a.hp, b.hp)
-print(a.attack(b, 2))
-print(a.hp, b.hp)
-print(b.attack(a, 0))
-print(a.hp, b.hp)
+# a = Pokemon()
+# a.load(10, 2500)
+# b = Pokemon()
+# b.load(15, 4000)
+# print(a.hp, b.hp)
+# print(a.attack(b, 2))
+# print(a.hp, b.hp)
+# print(b.attack(a, 0))
+# print(a.hp, b.hp)
+
+
+class Character(g_object):
+	def __init__(self,name,typ,level):
+		self._level=level
+		super(Character, self).__init__(typ, name)
+
+class Player(Character):
+	def __init__(self, pokemons, items, name, level, money):
+	# def __init__(self, pokemons, name, level, money):
+		for i in items:
+			if not issubclass(i.__class__, item): raise ValueError(type(items))
+		# global _CURRENT_ID
+		super(Player, self).__init__(name, TYPE_PLAYER, level)
+		# self.id = _CURRENT_ID
+		# _CURRENT_ID += 1
+		self.pokemon = []
+		self.backpack = {}
+		self.money = money
+
+		for i in pokemons:
+			self.pokemon.append(i)
+		for i in items:
+			i.setOwner(self)
+			self.backpack[i.id] = i
+
+	def addItem(self, item_inst):
+		if issubclass(item_inst.__class__, item): self.backpack[item_inst.id](item_inst)
+		else: raise ValueError(type(item_inst))
+
+	def delItem(self, item_id):
+		if item_id in self.backpack:
+			del self.backpack[item_id]
+
+	def useItem(self, item_id):
+		if item_id in self.backpack:
+			r = self.backpack[item_id].use()
+			if self.backpack[item_id].count <= 0:
+				del self.backpack[item_id]
+			return r
+		raise ValueError(item_id)
+
+	def getItem(self, item_id):
+		if item_id in self.backpack:
+			return self.backpack[item_id]
+		return None
+
+	def getBackpackInfo(self):
+		li = list(map((lambda x: x.getInfo()), self.backpack.values()))
+		li.sort()
+		return li
+
+	def check_backpack(self):
+		for i in self.backpack:
+			if self.backpack[i].count <= 0:
+				del self.backpack[i]
+
+_ITEM_ID = 0
+class item(object):
+	def __init__(self, name, count=1, buy_price=0, sell_price=0, owner=None):
+		global _ITEM_ID
+
+		_ITEM_ID += 1
+		self.id = _ITEM_ID
+
+		self.name = name
+		self.owner = owner
+		self.count = count
+		self.buy_price = buy_price
+		self.sell_price = sell_price
+
+	def setOwner(self, owner):
+		self.owner = owner
+
+	def getInfo(self):
+		return self.name, self.id
+
+	def use(self):
+		if self.count <= 0: raise ValueError(self.count)
+		self.count -= 1
+		return self.apply()
+
+	def apply(self):
+		# self.owner apply item
+		# return if successfully applied
+		pass
+
+	def sell(self, count):
+		if count > self.count: raise ValueError(count)
+		self.count -= count
+		self.owner.money += count * self.sell_price
+
+	def buy(self, count):
+		if count < 0: raise ValueError(count)
+		if count*self.buy_price > self.owner.money: self.owner.money += count*self.buy_price
+		else: raise ValueError(self.owner.money)
+
+	def getMaxBuy(self):
+		return self.owner.money//self.buy_price
+
+	def getMaxSell(self):
+		return self.count
+
+class juice(item):
+	def apply(self):
+		print("Yes")
+		return True
+
+player = Player([], [juice("juice", 3)], "name", 0, 0)
+player.setPos(0, 10)

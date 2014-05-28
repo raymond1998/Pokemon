@@ -42,11 +42,34 @@ class uiBackpack(rgine.windows.windowBase):
 			self._wm.RegisterClass(True, askbox.init, askbox.cb, askbox.rd, askbox.getMsg, askbox.rel),
 			((100, 50), None, "Confirm?")
 		)
+		self.hClass = self._wm.RegisterCompleteClass(uiBackpack_scroll)
 		self._askbox = 0
+		self._askbox_item = 0
+
+	def _create_w_pokemon(self, bk):
+		self._main_window_pokemon = self._wm.CreateWindow(
+				self.hClass,
+				(
+				(400, 300), bk, (400, 600),
+				[("pokemon!", 1), ("whatever", 2)],
+				)
+	                                          )
+		self._wm.MoveWindow(self._main_window_pokemon, 300, 125)
+
+	def _create_w_backpack(self, bk):
+		self._main_window_backpack = self._wm.CreateWindow(
+				self.hClass,
+				(
+				(400, 300), bk, (400, 600),
+				self.player.getBackpackInfo(),
+				)
+	                                          )
+		self._wm.MoveWindow(self._main_window_backpack, 300, 125)
 
 	def init(self, hWnd):
 		self._handle = hWnd
 		self._state = 0
+		self._askbox_item = 0
 		self._button_return = self._wm.CreateWindow(self.wmacros.WC_BUTTON, ((100, 20), None, "Return"))
 		self._wm.MoveWindow(self._button_return, 100, 400)
 
@@ -67,25 +90,9 @@ class uiBackpack(rgine.windows.windowBase):
 		else:
 			raise ValueError(self._wm.getInstance(self._tab).getMsg())
 
-		hClass = self._wm.RegisterCompleteClass(uiBackpack_scroll)
-		self._main_window_pokemon = self._wm.CreateWindow(
-			hClass,
-			(
-			(400, 300), surf, (400, 600),
-			[("pokemon!", 1), ("whatever", 2)],
-			)
-	                                          )
-		self._main_window_backpack = self._wm.CreateWindow(
-			hClass,
-			(
-			(400, 300), surf, (400, 600),
-			[("pBall", 1), ("yBall", 2)],
-			),
-	                                          )
 
-		self._wm.MoveWindow(self._main_window_pokemon, 300, 125)
-		self._wm.MoveWindow(self._main_window_backpack, 300, 125)
-		# print(self._wm.getInstance(self._main_window_pokemon).getRect())
+		self._create_w_backpack(surf)
+		self._create_w_pokemon(surf)
 
 		return True
 
@@ -122,10 +129,12 @@ class uiBackpack(rgine.windows.windowBase):
 				self._askbox = self.create_askbox()
 				self._wm.MoveWindow(self._askbox, 350, 300)
 				self._wm.SetTopmost(self._askbox, True)
+				self._askbox_item = msg
 			elif hWnd == self._main_window_backpack and msg != 0 and not self._askbox:
 				self._askbox = self.create_askbox()
 				self._wm.MoveWindow(self._askbox, 350, 300)
 				self._wm.SetTopmost(self._askbox, True)
+				self._askbox_item = msg
 
 			if hWnd == self._askbox and msg[1] != 0:
 				self._wm.SetTopmost(self._askbox, False)
@@ -134,6 +143,15 @@ class uiBackpack(rgine.windows.windowBase):
 				if msg[1] == 1:
 					print("Use")
 					# self.player.useItem()
+					if self._ctab == 1:
+						pass
+					elif self._ctab == 2:
+						self.player.useItem(self._askbox_item)
+						self._wm.DestroyWindow(self._main_window_backpack)
+						surf = pygame.Surface((400, 300), pygame.SRCALPHA)
+						surf.fill((111, 111, 111, 20))
+						pygame.draw.line(surf, (0, 0, 0), (0, 0), surf.get_size())
+						self._create_w_backpack(surf)
 					if self._static_tab:
 						return False
 
@@ -186,7 +204,7 @@ class uiBackpack_scroll(rgine.windows.windowScrollable):
 
 	def callback(self, evt, uMsg):
 		if uMsg == self.wmacros.WM_SETFOCUS:
-			self._wm.SetTopmost(self._buttons[0][0], False)
+			if self._buttons: self._wm.SetTopmost(self._buttons[0][0], False)
 		elif uMsg == self.wmacros.WM_KILLFOCUS:
 			self._wm.SetTopmost(-1, False)
 		elif self.getRect().collidepoint(evt.getMousePos()):

@@ -5,7 +5,6 @@ import base as base
 import menu as menu
 import battle as battle
 import backpack as backpack
-import ChiangObjectives as character
 import Combinedv2 as libpkmon
 
 textureSize = 32
@@ -52,7 +51,7 @@ world.setTextureFormat(textureSize, textureSize)
 evt = rgine.Event()
 wm = rgine.windows.WindowsManager(ScreenSize)
 
-pManager = base.PlayerManager(character.player, terrain, base.playerEvent, base.npcs)
+pManager = base.PlayerManager(libpkmon.player, terrain, base.playerEvent, base.npcs)
 npcManager = base.NPCManager()
 for i in base.npcs:
 	npcManager.new(i[0], i[1], base.npcs[i])
