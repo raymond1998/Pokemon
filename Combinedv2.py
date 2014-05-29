@@ -344,7 +344,7 @@ attack={
 		"Blue_Flare":[["Fir"],[[130],[85],[5]],["Burn",1/5]],
 		"Heat_Wave":[["Fir"],[[95],[90],[10]],["Burn",1/10]],
 		"Fire_Spin":[["Fir"],[[35],[85],[15]],["Trap"]],
-        "Ember":[["Fir"],[[40],[100],[25]],["Burn",1/10]],
+		"Ember":[["Fir"],[[40],[100],[25]],["Burn",1/10]],
 
 		"Air_Cutter":[["Fly"],[[60],[95],[25]],["HighCrit"]],
 		"Acrobatics":[["Fly"],[[55],[100],[15]],[None]],
@@ -539,10 +539,117 @@ attack={
 		"Hydro_Pump":[["Wat"],[[110],[80],[10]],[None]],
 }
 
+items={"Pokeball":[[1],[200],["A device for catching wild Pokémon.It's thrown like a ball at a Pokémon, comfortably "
+							  "encapsulating its target."],["Pokeball"]],\
+	   "Great_Ball":[[1.5],[600],["A good, high-performance Poké Ball that provides a higher Pokémon catch rate than "
+								  "a standard Poké Ball can."],["Pokeball"]],\
+	   "Ultra_Ball":[[2],[1200],["An ultra-high performance Poké Ball that provides a higher success rate for "
+								 "catching Pokémon than a Great Ball."],["Pokeball"]],\
+	   "Master_Ball":[[255],[20000],["The best Poké Ball with the ultimate level of performance. With it, "
+									  "you will catch any wild Pokémon without fail."],["Pokeball"]],\
 
-def Damage(Level,BaseP,SpAtk,SpDef,r,STAB,Weakness,CH):
-	DamageDelt=(trunc(((trunc(trunc((((trunc((trunc(((
-	                                                 Level*2)/5)+2))*BaseP*SpAtk/50)/SpDef))+2)*CH*r/100)))*STAB)*Weakness))
+	   "Potion":[[20],[300],["A spray-type medicine for treating wounds. It can be used to restore 20 HP to an "
+							 "injured Pokémon."],["Potion"]],\
+	   "Super_Potion":[[50],[700],["A spray-type medicine for treating wounds. It can be used to restore 50 HP to an "
+								   "injured Pokémon."],["Potion"]],\
+	   "Hyper_Potion":[[200],[1200],["A spray-type medicine for treating wounds.It can be used to restore 200 HP to "
+									 "an injured Pokémon."],["Potion"]],\
+	   "Max_Potion":[[9999],[2500],["A spray-type medicine for treating wounds. It will completely restore the max HP of a single Pokémon."],["Potion"]],\
+	   "Full_Restore":[[9999],[2500],["A medicine that can be used to fully restore the HP of a single Pokémon and "
+									  "heal any status conditions it has."],["Potion"]],\
+
+	   "Antidote":[["Poison","BadPoison"],[100],["A spray-type medicine for poisoning. It can be used once to lift "
+												 "the effects of being poisoned from a Pokémon."],["Potion"]],\
+	   "Parlyz_Heal":[["Para"],[200],["A spray-type medicine for paralysis. It can be used once to free a Pokémon "
+									  "that has been paralyzed."],["Potion"]],\
+	   "Awakening":[["Sleep"],[250],["A spray-type medicine used against sleep. It can be used once to rouse a "
+									 "Pokémon from the clutches of sleep."],["Potion"]],\
+	   "Burn_Heal":[["Burn"],[250],["A spray-type medicine for treating burns. It can be used once to heal a Pokemon "
+									"suffering from a burn."],["Potion"]],\
+	   "Ice_Heal":[["Freeze"],[100],["A spray-type medicine for freezing. It can be used once to defrost a Pokémon "
+									 "that has been frozen solid."],["Potion"]],\
+
+
+	   "Fire_Stone":[[1200],["A peculiar stone that can make certain species of Pokémon evolve. The stone has a fiery "
+							"orange heart.", ["Stone"]]],\
+	   "Thunder_Stone":[[1200],["A peculiar stone that can make certain species of Pokémon evolve. It has a distinct "
+							   "thunderbolt pattern."],["Stone"]],\
+	   "Water_Stone":[[1200],["A peculiar stone that can make certain species of Pokémon evolve. It is the blue of a "
+							 "pool of clear water."],["Stone"]],\
+	   "Leaf_Stone":[[1200],["A peculiar stone that can make certain species of Pokémon evolve. It has an "
+							 "unmistakable leaf pattern."],["Stone"]],\
+	   "Moon_Stone":[[1200],["A peculiar stone that can make certain species of Pokémon evolve. It is as black as the "
+							"night sky."],["Stone"]],}
+
+
+
+
+def Burn(self, if_run, mod):
+	if if_run:
+		self.hp-=self.maxhp//16
+		self.condition[inspect.stack()[0][3]][2]=1/2
+		input("BU")
+
+def Freeze(self, if_run,mod):
+	freezet=1
+	if if_run:
+		self.condition[inspect.stack()[0][3]][2]=0
+		x=randint(1,5)
+		if freezec==freezet:
+			if_run=false
+
+
+def Para(self, if_run, mod):
+	if if_run:
+		parac=randint(1,4)
+		if parac==1:
+			self.condition[inspect.stack()[0][3]][2]=0
+		else:
+			self.condition[inspect.stack()[0][3]][2]=1
+
+def Sleep(self,if_run,mod):
+	if if_run:
+		sleepc=randint(1,3)
+		self.condition[inspect.stack()[0][3]][2]=0
+		sleepc-=1
+		if sleepc==0:
+			if_run=False
+
+
+def Poison(self,if_run,mod):
+	if if_run:
+		self.hp-=self.maxhp//8
+
+def BadPoison(self,if_run,mod):
+	if if_run:
+		self.hp-=self.maxhp//self.badpoisonc
+		self.badpoisonc+=1/16
+
+def Flinch(self,if_run,mod):
+	if if_run:
+		self.condition[inspect.stack()[0][3]][2]=0
+
+def Confuse(self,if_run,mod):
+	if if_run:
+		self.cFlag=True
+		confusec=randint(1,4)
+		confusec-=1
+		if confusec==0:
+			self.cFlag=False
+			if_run=False
+
+
+
+def HighCrit(self,if_run,mod):
+	if if_run:
+		self.CHlist=[1,1,1,2,2]
+	if not if_run:
+		self.CHlist=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2]
+
+def Damage(Level,BaseP,SpAtk,SpDef,r,STAB,Weakness,CH,mod1):
+	DamageDelt=(trunc((trunc((trunc(trunc((((trunc((trunc(((
+													 Level*2)/5)+2))*BaseP*SpAtk/50)/SpDef))+2)*CH*r/100)))*mod1)*STAB
+	                  )*Weakness))
 	return DamageDelt
 
 ##print(Damage((trunc(UserPoke[0][2][0]/500)),\
@@ -593,6 +700,7 @@ class Pokemon(object):
 		self.image_back = None
 		self.name = ""
 		self.id = 0
+		self.badpoisonc=1/16
 
 	def load(self, identifer, xp, name=None):
 		global _POKEMON_ID
@@ -611,6 +719,20 @@ class Pokemon(object):
 		self.image_front = None
 		self.image_back = None
 		if name is None: self.name = self.getName()
+		self.condition={"Burn":[self, False, 1],\
+				"Freeze":[self,False,1],\
+				"Para":[self,False,1],\
+				"Sleep":[self,False,1],\
+				"Poison":[self,False,1],\
+				"BadPoison":[self,False,1],\
+				"Flinch":[self,False,1],\
+				"HighCrit":[self,False,1]}
+
+		self.mod1=1
+		self.badpoisonc=1/16
+		self.cFlag=False
+		self.CHlist=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2]
+		self.CH=choice(self.CHlist)
 
 	def getID(self):
 		return self.tID
@@ -636,25 +758,77 @@ class Pokemon(object):
 	def getSkillA(self,skillno):
 		return attack[self.getSkill(skillno)][1][1][0]
 
+	def getSkillBonus(self, skillno):
+		t = self.getSkill(skillno)
+		if len(attack[t][-1]) == 2:
+			if attack[t][-1][0] == "Rec":
+				return None
+			return attack[t][-1][0]
+		else:
+			return attack[t][-1][0]
+
+	def getSkillBonusChance(self, skillno):
+		try: return attack[self.getSkill(skillno)][-1][1]
+		except: return
+
 
 	def attack(self, other, skillno):
-		accCheckv=self.getSkillA(skillno)
-		accCheck=randint(0,100)
-		if accCheck<=accCheckv:
-			damage = Damage(self.level,
-							self.getSkillP(skillno),
-							self.SpAtk,
-							self.SpDef,
-							randint(85,100),
-							STAB(self.type1,self.type2,self.getSkillT(skillno)),
-							BonusCalc(self.getSkillT(skillno),other.type1,other.type2),
-							1)
-			if not self.getSkillP(skillno): damage = 0
-			other.hp -= damage
-			if other.hp < 0: other.hp = 0
-			return damage
-		elif accCheck>=accCheckv:
-			return 0
+			self.condition["Flinch"][0] = other
+			if self.getSkillBonus(skillno)is not None:
+				conditionList=[Burn,Freeze,Para,Sleep,Poison,BadPoison,Flinch,Confuse]
+				condition=[]
+				for i in range (len(conditionList)):
+					# print(self.getSkillBonus(skillno))
+					if conditionList[i]==eval(self.getSkillBonus(skillno)):
+						condition.append (conditionList[i].__name__)
+				chance=self.getSkillBonusChance(skillno)
+				chancecheck=randint(0,100)
+				if 100*chance>chancecheck:
+					other.condition[condition[0]][1] = True
+			_no_action = False
+			for i in self.condition:
+				val = eval(i)(*self.condition[i])
+				if i == "Para" and val == 0:
+					_no_action = True
+				elif i == "Flinch" and val == 0:
+					_no_action = True
+			if _no_action: return 0
+
+			accCheckv=self.getSkillA(skillno)
+			accCheck=randint(0,100)
+			if accCheck<=accCheckv:
+				if self.cFlag==False:
+					damage = Damage(self.level,
+									self.getSkillP(skillno),
+									self.SpAtk,
+									other.SpDef,
+									randint(85,100),
+									STAB(self.type1,self.type2,self.getSkillT(skillno)),
+									BonusCalc(self.getSkillT(skillno),other.type1,other.type2),
+									self.CH,self.mod1)
+				if self.cFlag==True:
+					attackselfchance=randint(1,2)
+					if attackselfchance==1:
+						damage = Damage(self.level,
+									self.getSkillP(skillno),
+									self.SpAtk,
+									self.SpDef,
+									randint(85,100),
+									STAB(self.type1,self.type2,self.getSkillT(skillno)),
+									BonusCalc(self.getSkillT(skillno),self.type1,self.type2),
+									CH,self.mod1)
+						self.hp-=damage
+					else:
+						other.hp-=damage
+
+				if not self.getSkillP(skillno): damage = 0
+				other.hp -= damage
+				if other.hp < 0: other.hp = 0
+				return damage
+
+			elif accCheck>=accCheckv:
+				return 0
+
 
 	def getProperties(self):
 		return {} # all properties
@@ -666,7 +840,7 @@ class Pokemon(object):
 			self.image_front = pygame.transform.scale(self.image_front, (200, 200))
 		if self.image_back is None:
 			self.image_back = pygame.image.load(path+"/pokedex-media/pokemon/main-sprites/platinum/back/%d.png"%
-			                                    self.tID)\
+												self.tID)\
 				.convert_alpha()
 			self.image_back = pygame.transform.scale(self.image_back, (200, 200))
 		if front: return self.image_front
@@ -686,7 +860,7 @@ class Pokemon(object):
 		return self.level
 
 
-##print(userattack)
+##print(userattack)s
 ##print((Damage((trunc(UserPoke[0][2][0]/500)),\
 ##             (attack[userattack][1][0][0]),\
 ##             (trunc(PokeStat[1][3][0]+(UserPoke[0][2][0]/500)*1/2)),\

@@ -3,3 +3,4 @@
 
 [0] ->  if reachable
 [1] ->  if a player event
+[2] ->	if count battle step
