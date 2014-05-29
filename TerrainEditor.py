@@ -1,6 +1,6 @@
 __author__ = 'Charles-Jianye Chen'
 import pygame
-
+import ctypes
 import wapisp
 
 MB_ICONQUESTION = 0x00000020

@@ -71,6 +71,10 @@ class Event(object):
 		if self.type == pygame.KEYDOWN and self.dict["key"] == key: return True
 		return False
 
+	def isKeyUp(self, key):
+		if self.type == pygame.KEYUP and self.dict["key"] == key: return True
+		return False
+
 	def isMouseDown(self, key):
 		"""
 		Check if the specific key is down.

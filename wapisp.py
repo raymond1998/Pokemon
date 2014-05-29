@@ -3,6 +3,7 @@
 WindowsAPIs Support Package (WAPISP)/(WSP)
 
 '''
+import ctypes
 user32 = ctypes.windll.LoadLibrary("user32.dll")
 kernel32 = ctypes.windll.LoadLibrary("kernel32.dll")
 shell32 = ctypes.windll.LoadLibrary("shell32.dll")

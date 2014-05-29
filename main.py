@@ -67,6 +67,8 @@ uBattle = battle.Battle(uBackpack, wm)
 import time
 fps = 0
 t = time.clock()
+
+direction = []
 while True:
 	evt.update()
 	if evt.type == pygame.QUIT: break
@@ -88,15 +90,37 @@ while True:
 			not uBattle.isRunning() and \
 			not uBackpack.isRunning():
 
-		if evt.isKeyDown(pygame.K_UP) or evt.isKeyDown(pygame.K_w):
-			y -= 1
-		elif evt.isKeyDown(pygame.K_DOWN) or evt.isKeyDown(pygame.K_s):
-			y += 1
-		if not y:
-			if evt.isKeyDown(pygame.K_LEFT) or evt.isKeyDown(pygame.K_a):
+		if evt.isKeyHit(pygame.K_UP):
+			direction.append(pygame.K_UP)
+		elif evt.isKeyHit(pygame.K_DOWN):
+			direction.append(pygame.K_DOWN)
+		elif evt.isKeyHit(pygame.K_LEFT):
+			direction.append(pygame.K_LEFT)
+		elif evt.isKeyHit(pygame.K_RIGHT):
+			direction.append(pygame.K_RIGHT)
+
+		if evt.isKeyUp(pygame.K_UP):
+			direction.remove(pygame.K_UP)
+		elif evt.isKeyUp(pygame.K_DOWN):
+			direction.remove(pygame.K_DOWN)
+		elif evt.isKeyUp(pygame.K_LEFT):
+			direction.remove(pygame.K_LEFT)
+		elif evt.isKeyUp(pygame.K_RIGHT):
+			direction.remove(pygame.K_RIGHT)
+
+		if direction:
+			if direction[-1] == pygame.K_UP:
+				y -= 1
+			elif direction[-1] == pygame.K_DOWN:
+				y += 1
+			elif direction[-1] == pygame.K_LEFT:
 				x -= 1
-			elif evt.isKeyDown(pygame.K_RIGHT) or evt.isKeyDown(pygame.K_d):
+			elif direction[-1] == pygame.K_RIGHT:
 				x += 1
+			else:
+				raise ValueError(direction[-1])
+	else:
+		direction = []
 
 
 	# check npc event
