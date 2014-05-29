@@ -769,7 +769,7 @@ class Pokemon(object):
 
 	def getSkillBonusChance(self, skillno):
 		try: return attack[self.getSkill(skillno)][-1][1]
-		except: return
+		except: return 0
 
 
 	def attack(self, other, skillno):
