@@ -460,6 +460,43 @@ class _terrainW(_terrainR):
 		os.remove(fname+".temp")
 		hFile.close()
 
+	def semi_finalize(self, surface):
+		"""
+		Semi-Finalizes the working terrain, generates new texturefile to avoid ppa issues.
+		YOU CAN LOAD IT WITH THE TEXTURE FILES WHICH HAVE LESS TEXTURES THEN THE CURRENT TEXTURE.
+		Note that the orders of textures are changed.
+		Returns the newly created _terrainW object.
+		:pygame.Surface surface:
+		:str fname:
+		:str texturefname:
+		:return _terrainW object:
+		"""
+
+		t = Terrain("w", self.width, self.height, self.textureW, self.textureH)
+		i = len(self._texture)+1
+		for y in range(self.height):
+			for x in range(self.width):
+				t.setIdentifier(x, y, i)
+				i += 1
+
+		def getImages(img, sizeX, sizeY):
+			x, y = img.get_size()
+			for sy in range(0, y, sizeY):
+				for sx in range(0, x, sizeX):
+					yield img.subsurface(pygame.Rect(sx, sy, sizeX, sizeY)).copy()
+
+		k = list(self._texture.keys())
+		k.sort()
+		for i in k:
+			t.setTexture(self._texture[i], i)
+
+		j = len(self._texture)+1
+		for i in getImages(surface, self.textureW, self.textureH):
+			t.setTexture(i, j)
+			j += 1
+
+		return t
+
 	def finalize(self, surface):
 		"""
 		Finalizes the working terrain, generates new texturefile to avoid ppa issues.
