@@ -151,5 +151,23 @@ class Menu_Exit(base.pEvent):
 	def render(self, evt, wm):
 		return True, None
 
-buttons = {1:"me", 2:"backpack", 3:"pokemon", 98:"help", 99:"exit"}
-inst = {98:Menu_Help(), 99:Menu_Exit()}
+class Menu_Backpack(base.pEvent):
+	def __init__(self):
+		super(Menu_Backpack, self).__init__()
+		self.uBackpack = None
+
+	def setBackpack(self, uBackpack):
+		self.uBackpack = uBackpack
+
+	def init(self, evt, wm):
+		self.uBackpack.init(evt, wm)
+		return False
+
+	def render(self, evt, wm):
+		return True
+
+	def release(self, wm):
+		pass
+
+buttons = {1:"me", 2:"backpack", 98:"help", 99:"exit"}
+inst = {1: Menu_Help(), 2: Menu_Backpack(), 98: Menu_Help(), 99: Menu_Exit()}
