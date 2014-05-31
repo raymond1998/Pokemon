@@ -242,30 +242,18 @@ while running:
 				tWrite.render(wWrite.getSurface())
 				wWriteRect = pygame.Rect(*(wWriteOffset+wWrite.getSize()))
 			elif wmbuttons[hWnd] == "Semi-Finalize":
-				uret = wapisp.MessageBox(hPygameWindow, "Do you want to save it as a jpeg file?\n"
-								 "Note that it will be extremely fast and small-sized"
-								 "to save textures as a jpeg file,"
-								 "but you won't be able to load it by readTextureFromFile().\n"
-								 "Instead, you will have to load it by pygame.image first, "
-								 "then call readTextureFromSurface() to initialize.  ", wmbuttons[hWnd],
-						  wapisp.MB_YESNO | MB_ICONQUESTION)
-				if uret != wapisp.IDYES and uret != wapisp.IDNO: continue
-
 				temp = wapisp.MessageBox(hPygameWindow, "This could take a while, "
-								 "depends on the terrain size. "
-								 "You will receive another msgbox for notification. "
-								 "Confirm to start. ", wmbuttons[hWnd],
+								 "depends on the terrain size. \n"
+								 "You will receive another msgbox for notification. \n\n"
+								 "Confirm to start. \n\n"
+								 "Note that Semi-Finalization could only use .texture format. ", wmbuttons[hWnd],
 						  wapisp.MB_OKCANCEL| MB_ICONINFORMATION)
 				if temp == wapisp.IDCANCEL: continue
 
 				ct = int(time.time())
 				temp = tWrite.semi_finalize(wWrite.getSurface())
 				temp.writeTerrain("%d.terrain"%ct)
-
-				if uret == wapisp.IDYES:
-					pygame.image.save(temp.writeTextureToSurface(), "%d.jpeg"%ct)
-				else:
-					temp.writeTextureToFile("%d.texture"%ct)
+				temp.writeTextureToFile("%d.texture"%ct)
 
 				wapisp.MessageBox(hPygameWindow, "Done! ", wmbuttons[hWnd])
 			elif wmbuttons[hWnd] == "Finalize":
@@ -279,8 +267,8 @@ while running:
 				if uret != wapisp.IDYES and uret != wapisp.IDNO: continue
 
 				temp = wapisp.MessageBox(hPygameWindow, "This could take a while, "
-								 "depends on the terrain size. "
-								 "You will receive another msgbox for notification. "
+								 "depends on the terrain size. \n"
+								 "You will receive another msgbox for notification. \n\n"
 								 "Confirm to start. ", wmbuttons[hWnd],
 						  wapisp.MB_OKCANCEL| MB_ICONINFORMATION)
 				if temp == wapisp.IDCANCEL: continue
