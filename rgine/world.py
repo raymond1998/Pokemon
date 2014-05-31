@@ -8,6 +8,8 @@ class World(object):
 			self._size = [width, height]
 			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
 			self._rect = [0, 0, width, height]
+			self.sx = 0
+			self.sy = 0
 
 		def setProjectionSize(self, width, height):
 			self._rect[2] = width
@@ -17,38 +19,48 @@ class World(object):
 			self._rect[0] = x
 			self._rect[1] = y
 
+		def setObjectShift(self, sx, sy):
+			self.sx = sx
+			self.sy = sy
+
 		def resize(self, width, height):
 			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
 			self._size = [width, height]
 
 		def new(self):
-			self._surface = pygame.Surface((width, height), pygame.SRCALPHA)
+			self._surface = pygame.Surface(self._size, pygame.SRCALPHA)
 
 		def clear(self, alpha=255, rect=None, flag=pygame.BLEND_RGBA_SUB):
 			self._surface.fill((0, 0, 0, alpha), rect, flag)
 
 		def shiftH(self, shift):
 			self._rect[0] += shift
-			if self._rect[0] < 0: self._rect[0] = 0
-			elif self._rect[0] > self._size[0] - self._rect[2]:
-					self._rect[0] = self._size[0] - self._rect[2]
+			self.normalize_x()
 
 		def shiftV(self, shift):
 			self._rect[1] += shift
-			if self._rect[1] < 0: self._rect[1] = 0
-			elif self._rect[1] > self._size[1] - self._rect[3]:
-					self._rect[1] = self._size[1] - self._rect[3]
+			self.normalize_y()
+
+		def normalize_x(self):
+			if self._rect[0]-self.sx < 0: self._rect[0] = self.sx
+			elif self._rect[0]-self.sx > self._size[0] - self._rect[2]:
+					self._rect[0] = self._size[0] - self._rect[2] + self.sx
+
+		def normalize_y(self):
+			if self._rect[1]-self.sy < 0: self._rect[1] = self.sy
+			elif self._rect[1]-self.sy > self._size[1] - self._rect[3]:
+					self._rect[1] = self._size[1] - self._rect[3] + self.sy
+
+		def normalize(self):
+			self.normalize_x()
+			self.normalize_y()
 
 		def render(self):
-			return self._surface.subsurface(self._rect)
+			return self._surface.subsurface((self._rect[0]-self.sx, self._rect[1]-self.sy,
+					self._rect[2], self._rect[3]))
 
 		def render_s(self):
-			if self._rect[0] < 0: self._rect[0] = 0
-			elif self._rect[0] > self._size[0] - self._rect[2]:
-					self._rect[0] = self._size[0] - self._rect[2]
-			if self._rect[1] < 0: self._rect[1] = 0
-			elif self._rect[1] > self._size[1] - self._rect[3]:
-					self._rect[1] = self._size[1] - self._rect[3]
+			self.normalize()
 			try:
 				return self.render()
 			except ValueError:
@@ -60,7 +72,7 @@ class World(object):
 				if y+h > height or y < 0:
 					h = min([height, h])
 					y = height - h
-				self._rect = [x, y, w, h]
+				self._rect = [x+self.sx, y+self.sy, w, h]
 				# print(self._rect)
 				return self.render()
 
@@ -84,10 +96,13 @@ class World(object):
 			return pygame.Rect(x-self._rect[0], y-self._rect[1], w, h)
 
 class TerrainWorld(World):
-	def __init__(self, width, height):
+	def __init__(self, width, height, shftx=0, shfty=0):
 		super(TerrainWorld, self).__init__(width, height)
 		self._textureW = 1
 		self._textureH = 1
+		self.tsx = shftx
+		self.tsy = shfty
+		self.setObjectShift(self.tsx*self._textureW, self.tsy*self._textureH)
 
 	def setTextureFormat(self, textureWidth, textureHeight):
 		self._textureW = textureWidth
@@ -95,10 +110,17 @@ class TerrainWorld(World):
 
 	def getTerrainRange(self):
 		x, y, w, h = self._rect
-		return [x//self._textureW, (x+w)//self._textureW], [y//self._textureH, (y+h)//self._textureH]
+		return [x//self._textureW, (x+w)//self._textureW], \
+		       [y//self._textureH, (y+h)//self._textureH]
 
 	def Terrain2World(self, x, y):
-		return x*self._textureW, y*self._textureH
+		return (x-self.tsx)*self._textureW, (y-self.tsy)*self._textureH
+
+	def setTerrainShift(self, sx, sy):
+		self.tsx = sx
+		self.tsy = sy
+		self.setObjectShift(self.tsx*self._textureW, self.tsy*self._textureH)
+
 
 def getTerrainByPos(terrain, mouseX, mouseY, shiftX, shiftY):
 		a, b = terrain.getTerrainByRelativeRect((mouseX-shiftX, mouseY-shiftY, 0, 0))

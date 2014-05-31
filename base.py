@@ -243,6 +243,8 @@ class ShopNPC(NPC_Skeleton):
 playerEvent = {}
 # load these npcs before game starts # (x, y): npc_object
 npcs = {}
+# load these maps before game starts # (terrain, starting_offset) # remember to call init first
+maps = []
 
 surf = rgine.read_buffer("pic1", 96, 128)
 pos = (9, 9)

@@ -6,6 +6,7 @@ import menu as menu
 import battle as battle
 import backpack as backpack
 import Combinedv2 as libpkmon
+import map as maps
 
 textureSize = 32
 ScreenSize = list(map(int, (16*textureSize*1.5, 9*textureSize*1.5)))
@@ -40,18 +41,32 @@ while True:
 	screen.blit(intro_text, (0, 0))
 	pygame.display.flip()
 
+def LoadMap(uPos):
+	global g_cm, world, terrain
+	g_cm = mapManager.getMap(uPos)
+	world = g_cm.world
+	terrain = g_cm.terrain
+
+evt = rgine.Event()
+wm = rgine.windows.WindowsManager(ScreenSize)
+
+maps.init(ScreenSize, textureSize)
+mapManager = maps.MapManager()
+for i in base.maps:
+	mapManager.add(maps.Map(*i))
+
 terrain = base.init_terrain("1399339488.terrain", "myTexture.texture", True, textureSize)
 terrain.readTextureFromSurface(pygame.image.load("1399339488.jpeg"))
 terrain.readTextureProperty("1399648062.textureProperty")
 terrain.setProperty(0, 1, 255)
 terrain.setProperty(1, 0, 255)
-world = rgine.TerrainWorld(terrain.width*terrain.textureW, terrain.height*terrain.textureH)
-world.setProjectionSize(*ScreenSize)
-world.setTextureFormat(textureSize, textureSize)
-evt = rgine.Event()
-wm = rgine.windows.WindowsManager(ScreenSize)
+mapManager.add(maps.Map(terrain, (4, 4)))
 
 pManager = base.PlayerManager(libpkmon.player, terrain, base.playerEvent, base.npcs)
+pManager.getPlayer().setPos(5+4, 10+4)
+
+LoadMap(pManager.getPlayer().getPos())
+
 npcManager = base.NPCManager()
 for i in base.npcs:
 	npcManager.new(i[0], i[1], base.npcs[i])
@@ -82,6 +97,7 @@ while True:
 
 
 	# check user event
+	pManager.setTerrain(terrain)
 	pManager.updateEvent(evt, wm)
 	x = y = 0
 

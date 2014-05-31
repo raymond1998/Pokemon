@@ -66,6 +66,12 @@ class _terrainBase(object):
 		self.height = 0
 		self.textureW = 0
 		self.textureH = 0
+		self.sx = 0
+		self.sy = 0
+
+	def setShift(self, sx, sy):
+		self.sx = sx
+		self.sy = sy
 		
 	def writeTextureProperty(self, fname):
 		f = open(fname, "wb")
@@ -104,15 +110,15 @@ class _terrainBase(object):
 					self._texture[self._data[x][y][0]] = s
 
 	def render_s(self, Surface, startpt=[0, 0], range_w=None, range_h=None):
-		if range_w is None: range_w = range(self.width)
-		if range_h is None: range_h = range(self.height)
+		if range_w is None: range_w = range(self.sx, self.width+self.sx)
+		if range_h is None: range_h = range(self.sy, self.height+self.sy)
 		startpt = list(startpt)
 		sx, sy = startpt
 		s = pygame.Surface((self.textureW, self.textureH))
 		for y in range_h:
 			for x in range_w:
 				try:
-					Surface.blit(self._texture[self._data[x][y][0]], startpt)
+					Surface.blit(self._texture[self._data[x-self.sx][y-self.sy][0]], startpt)
 				except:
 					Surface.blit(s, startpt)
 				startpt[0] += self.textureW
@@ -127,13 +133,13 @@ class _terrainBase(object):
 		:range range_w:
 		:range range_h:
 		"""
-		if range_w is None: range_w = range(self.width)
-		if range_h is None: range_h = range(self.height)
+		if range_w is None: range_w = range(self.sx, self.width+self.sx)
+		if range_h is None: range_h = range(self.sy, self.height+self.sy)
 		startpt = list(startpt)
 		sx, sy = startpt
 		for y in range_h:
 			for x in range_w:
-				Surface.blit(self._texture[self._data[x][y][0]], startpt)
+				Surface.blit(self._texture[self._data[x-self.sx][y-self.sy][0]], startpt)
 				startpt[0] += self.textureW
 			startpt[0] = sx
 			startpt[1] += self.textureH
@@ -145,7 +151,7 @@ class _terrainBase(object):
 		:int y:
 		:return int:
 		"""
-		return self._data[x][y][1]
+		return self._data[x-self.sx][y-self.sy][1]
 
 	def setProperty(self, x, y, prpty_int):
 		"""
@@ -154,7 +160,7 @@ class _terrainBase(object):
 		:int y:
 		:int prpty_int:
 		"""
-		self._data[x][y][1] = prpty_int
+		self._data[x-self.sx][y-self.sy][1] = prpty_int
 
 	def getIdentifier(self, x, y):
 		"""
@@ -163,7 +169,7 @@ class _terrainBase(object):
 		:int y:
 		:return int:
 		"""
-		return self._data[x][y][0]
+		return self._data[x-self.sx][y-self.sy][0]
 
 	def setIdentifier(self, x, y, identifier):
 		"""
@@ -172,7 +178,7 @@ class _terrainBase(object):
 		:int y:
 		:int identifier:
 		"""
-		self._data[x][y][0] = identifier
+		self._data[x-self.sx][y-self.sy][0] = identifier
 		
 	def getProperty_s(self, x, y):
 		"""
@@ -181,8 +187,8 @@ class _terrainBase(object):
 		:int y:
 		:return int:
 		"""
-		if 0 <= x < self.width and 0 <= y < self.height:
-			return self._data[x][y][1]
+		if self.sx <= x < self.width+self.sx and self.sy <= y < self.height+self.sy:
+			return self._data[x-self.sx][y-self.sy][1]
 		else:
 			return None
 
@@ -193,8 +199,8 @@ class _terrainBase(object):
 		:int y:
 		:int prpty_int:
 		"""
-		if 0 <= x < self.width and 0 <= y < self.height:
-			self._data[x][y][1] = prpty_int
+		if self.sx <= x < self.width+self.sx and self.sy <= y < self.height+self.sy:
+			self._data[x-self.sx][y-self.sy][1] = prpty_int
 			return True
 		return False
 
@@ -205,8 +211,8 @@ class _terrainBase(object):
 		:int y:
 		:return int:
 		"""
-		if 0 <= x < self.width and 0 <= y < self.height:
-			return self._data[x][y][0]
+		if self.sx <= x < self.width+self.sx and self.sy <= y < self.height+self.sy:
+			return self._data[x-self.sx][y-self.sy][0]
 		else:
 			return None
 
@@ -217,8 +223,8 @@ class _terrainBase(object):
 		:int y:
 		:int identifier:
 		"""
-		if 0 <= x < self.width and 0 <= y < self.height:
-			self._data[x][y][0] = identifier
+		if self.sx <= x < self.width+self.sx and self.sy <= y < self.height+self.sy:
+			self._data[x-self.sx][y-self.sy][0] = identifier
 			return True
 		return False
 		
@@ -248,7 +254,11 @@ class _terrainBase(object):
 		"""
 		if (isinstance(x, list) and isinstance(y, list)) or (isinstance(x, tuple) and isinstance(y, tuple)):
 			x1, x2 = x
+			x1 -= self.sx
+			x2 -= self.sx
 			y1, y2 = y
+			y1 -= self.sy
+			y2 -= self.sy
 			return pygame.Rect(x1*self.textureW, y1*self.textureH,
 							   self.textureW*abs(x2-x1), self.textureH*abs(y2-y1))
 		else:
@@ -286,7 +296,7 @@ class _terrainBase(object):
 		else:
 			h //= self.textureH
 
-		return [x, x+w], [y, y+h]
+		return [x+self.sx, x+w+self.sx], [y+self.sy, y+h+self.sy]
 
 
 class _terrainR(_terrainBase):
