@@ -131,7 +131,7 @@ class ShopNPC(NPC_Skeleton):
 
 						def init(self, hWnd):   #init
 								nonlocal _button_size
-								self.macros= rgine.windows.WindowsMacros()
+								self.macros = rgine.windows.WindowsMacros()
 								self.button_id = -1
 
 								cx = cy = tx = ty = 0
@@ -140,36 +140,40 @@ class ShopNPC(NPC_Skeleton):
 								self._hWnds = {}
 								self._stable = []
 								buttons = self._args[4]
-								for i in buttons:
+								t = list(buttons.keys())
+								t.sort()
+								self.framewidth = 20
+								self._diff = (self.getRect()[2] - 2 * (self.framewidth) - 5 * (_button_size[0])) // 4
+								for i in t:
 										self._button0 = self._wm.CreateWindow(self.macros.WC_BUTTON, (_button_size, self.macros.button, "%s"%i,
-																									  pygame.font.SysFont('Times New Roman', 16),
+						  pygame.font.SysFont('Times New Roman', 16),
 																									  True, (255, 255, 255)), True)
 										Times_New_Roman = pygame.font.SysFont('Times New Roman', 16)
-										self._text0 = Times_New_Roman.render("%s"%str(buttons[i]), True, (0, 0, 0))
+										self._text0 = Times_New_Roman.render("%s"%str(buttons[i].buy_price), True, (0, 0, 0))
 
-										self._wm.MoveWindow(self._button0, cx+20, cy+20)
-										tx = _button_size[0]/2 - self._text0.get_width()/2 + cx +20
-										ty = _button_size[1]+cy+20
-										cx += _button_size[0]+1
+										self._wm.MoveWindow(self._button0, cx + self.framewidth, cy + self.framewidth)
+										tx = _button_size[0]/2 - self._text0.get_width()/2 + cx + self.framewidth
+										ty = _button_size[1] + cy + self.framewidth
+										cx += _button_size[0] + self._diff
 
 										self._stable.append((self._text0, (tx, ty)))
 
 
 
-										if cx + 20 > self.getRect()[2]:
+										if cx +  _button_size[0] > self.getRect()[2]:
 												cx = 0
 												cy += (2 * _button_size[1]+1)
 										if tx + 20 > self.getRect()[2]:
 												tx = 0
 												ty += (2 * _button_size[1]+1)
-										self._hWnds[i] = self._button0
+										self._hWnds[i] = (self._button0)
 								self._exit_button =  self._wm.CreateWindow(self.macros.WC_BUTTON, (_button_size, self.macros.button, "Exit",
 																								   pygame.font.SysFont('Times New Romen', 16),
 																								   True, (255, 255, 255)), True)
 								print(self._exit_button)
 								x,y = self.getClientSize()
 								self._wm.MoveWindow(self._exit_button, x-_button_size[0]-20, y-_button_size[1]-20)
-								self._hWnds[exit] = self._exit_button
+								self._hWnds[exit] = (self._exit_button)
 								self._handle = hWnd
 								self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
 								self.msgbox = 0
@@ -260,5 +264,14 @@ npcs[tuple(pos)] = CoversationNPC(pos, res_walk(surf, 3, 4, 0)[0],
 										  "Comeon Raymond! What are you doing there! ",
 								  ]
 )
+
+import Combinedv2 as cdv2
 pos = (8, 8)
-npcs[tuple(pos)] = ShopNPC(pos, res_walk(surf, 3, 4, 0)[0], {"Raymond Doll": 1000})
+it = cdv2.juice("juice", 0, 100, 10, cdv2.player)
+it2 = cdv2.juice("juice2", 0, 100, 10, cdv2.player)
+it3 = cdv2.juice("juice3", 0, 100, 10, cdv2.player)
+it4 = cdv2.juice("juice4", 0, 100, 10, cdv2.player)
+it5 = cdv2.juice("juice5", 0, 100, 10, cdv2.player)
+it6 = cdv2.juice("juice6", 0, 100, 10, cdv2.player)
+it7 = cdv2.juice("juice7", 0, 100, 10, cdv2.player)
+npcs[tuple(pos)] = ShopNPC(pos, res_walk(surf, 3, 4, 0)[0], {it.getInfo()[0]:it, it2.getInfo()[0]:it2, it3.getInfo()[0]:it3, it4.getInfo()[0]:it4, it5.getInfo()[0]:it5, it6.getInfo()[0]:it6, it7.getInfo()[0]:it7})
