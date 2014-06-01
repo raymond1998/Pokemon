@@ -1,4 +1,16 @@
-from common import *
+import os
+import inspect
+path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+f = open(path+os.sep+"__DEBUG__", "rb")
+__DEBUG__ = f.read(1)[0]
+f.close()
+
+if __DEBUG__:
+	from common import *
+else:
+	from rgine.common import *
+
+
 _logfmt = \
 '''================================================================================
 Level		: %s

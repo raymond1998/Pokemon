@@ -1,11 +1,22 @@
 import os
-
+import inspect
 import pygame
+path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+f = open(path+os.sep+"__DEBUG__", "rb")
+__DEBUG__ = f.read(1)[0]
+f.close()
 
-from common import *
-import exception
-import buildinfo
-from surface_buffer import *
+if __DEBUG__:
+		from common import *
+		import exception
+		import buildinfo
+		from surface_buffer import *
+else:
+		from rgine.common import *
+		import rgine.exception as exception
+		import rgine.buildinfo as buildinfo
+		from rgine.surface_buffer import *
+
 
 ##if __name__ == "__main__": _version_ = buildinfo.bump("terrain", 1)
 ##else: _version_ = buildinfo.get("terrain")

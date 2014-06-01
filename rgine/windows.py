@@ -1,15 +1,23 @@
 import cProfile
-
+import os
+import inspect
 import pygame
 
-from common import *
-from surface_buffer import *
-import event
-import world
+path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+f = open(path+os.sep+"__DEBUG__", "rb")
+__DEBUG__ = f.read(1)[0]
+f.close()
 
-
-
-
+if __DEBUG__:
+		from common import *
+		from surface_buffer import *
+		import event
+		import world
+else:
+		from rgine.common import *
+		from rgine.surface_buffer import *
+		import rgine.event as event
+		import rgine.world as world
 
 p = cProfile.Profile()
 __author__ = "Charles-Jianye Chen"
@@ -1028,7 +1036,7 @@ class _windowEditbox(windowBase):
 			# if self._text: print(self._text)
 
 		surf = render_text(self._surf.get_size(), "".join(self._text),
-		            self._font, True, (255, 255, 255))
+					self._font, True, (255, 255, 255))
 		self._surf.blit(surf, (0, 0))
 
 		return True
@@ -1255,7 +1263,7 @@ def _main():
 											  # pygame.font.SysFont('Times New Romen', 16),
 											  # True, (255, 255, 255)))
 	wm.getInstance(hwnd4)._wm.CreateWindow(wm.getInstance(hwnd4)._wm.RegisterClass(framed, init, cb, rd, getMsg, rel), ((200, 200), surf,
-	                                                                                             "this is 4x"))
+																								 "this is 4x"))
 	ychg = 0
 	xchg = 0
 	for i in range(5):
@@ -1277,8 +1285,8 @@ def _main():
 				  , [_button_size[0]//2, _button_size[1]//2]))
 	wtab = 0
 	wtab = wm.CreateWindow(WindowsMacros.WC_TAB, ((400, 200), pygame.Surface((400, 200)),
-						      (100, 100), pygame.Surface((100, 100)),
-						      [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
+							  (100, 100), pygame.Surface((100, 100)),
+							  [("1", 2), ("2", 1), ("3", 3), ("4", 4)])
 	)
 
 	weditbox = wm.CreateWindow(WindowsMacros.WC_EDITBOX, ((200, 100), None))

@@ -162,14 +162,14 @@ class ShopNPC(NPC_Skeleton):
 										if tx + 20 > self.getRect()[2]:
 												tx = 0
 												ty += (2 * _button_size[1]+1)
-										self._hWnds[i] = (self._button0)
+										self._hWnds[i] = self._button0
 								self._exit_button =  self._wm.CreateWindow(self.macros.WC_BUTTON, (_button_size, self.macros.button, "Exit",
 																								   pygame.font.SysFont('Times New Romen', 16),
 																								   True, (255, 255, 255)), True)
 								print(self._exit_button)
 								x,y = self.getClientSize()
 								self._wm.MoveWindow(self._exit_button, x-_button_size[0]-20, y-_button_size[1]-20)
-								self._hWnds[exit] = (self._exit_button)
+								self._hWnds[exit] = self._exit_button
 								self._handle = hWnd
 								self._bk_ = pygame.Surface(self.getClientSize(), pygame.SRCALPHA)
 								self.msgbox = 0

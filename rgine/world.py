@@ -1,6 +1,15 @@
+import os
+import inspect
 import pygame
+path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+f = open(path+os.sep+"__DEBUG__", "rb")
+__DEBUG__ = f.read(1)[0]
+f.close()
 
-from common import *
+if __DEBUG__:
+		from common import *
+else:
+		from rgine.common import *
 
 
 class World(object):
@@ -111,7 +120,7 @@ class TerrainWorld(World):
 	def getTerrainRange(self):
 		x, y, w, h = self._rect
 		return [x//self._textureW, (x+w)//self._textureW], \
-		       [y//self._textureH, (y+h)//self._textureH]
+			   [y//self._textureH, (y+h)//self._textureH]
 
 	def Terrain2World(self, x, y):
 		return (x-self.tsx)*self._textureW, (y-self.tsy)*self._textureH
