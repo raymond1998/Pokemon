@@ -6,7 +6,7 @@ __author__ = 'Charles-Jianye Chen'
 import sys
 path = sys.path[0]
 if not path: path = sys.path[1]
-_battle_bk = rgine.surface_buffer.read_buffer(path+"/resources/battle", 1920, 1200)
+_battle_bk = rgine.surface_buffer.read_buffer(path+"/resources/bBG", 640, 436)
 
 ATK = 1
 DEF = 2
@@ -385,8 +385,8 @@ class Battle(pEvent):
 			self._activated = True
 
 			winsize = wm.screensize
-			surf = pygame.transform.scale(_battle_bk, winsize).convert()
-			surf.set_alpha(200)
+			surf = pygame.transform.scale(_battle_bk, winsize).convert_alpha()
+##			surf.set_alpha(200)
 			self._scene = wm.CreateWindow(
 				wm.RegisterCompleteClass(_BattleMain),
 				(winsize, surf, atk, defense, backpack, wm)
