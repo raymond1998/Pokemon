@@ -19,6 +19,7 @@ class uiBackpack(rgine.windows.windowBase):
 		self._static_tab = False
 		if len(self._args) >= 3:
 			self._static_tab = bool(self._args[2])
+		self.other = self._args[3]
 
 		self._handle = 0
 		self._surface = pygame.Surface(wsize, pygame.SRCALPHA)
@@ -160,8 +161,6 @@ class uiBackpack(rgine.windows.windowBase):
 				self._wm.DestroyWindow(self._askbox)
 				self._askbox = 0
 				if msg[1] == 1:
-					print("Use")
-					# self.player.useItem()
 					if self._ctab == 1:
 						self.player.setCurrentPokemon(self._askbox_item)
 						self._wm.DestroyWindow(self._main_window_pokemon)
@@ -171,7 +170,7 @@ class uiBackpack(rgine.windows.windowBase):
 						self._create_w_pokemon(surf)
 						self._update_current_pokemon()
 					elif self._ctab == 2:
-						self.player.useItem(self._askbox_item)
+						self.player.useItem(self._askbox_item, self.other)
 						self._wm.DestroyWindow(self._main_window_backpack)
 						surf = pygame.Surface((400, 300), pygame.SRCALPHA)
 						surf.fill((111, 111, 111, 20))
@@ -329,9 +328,13 @@ class Backpack(pEvent):
 		self._lastmsg = None
 		self._deftab = 1
 		self._static = False
+		self.other = None
 
 	def setPlayer(self, player):
 		self.player = player
+		
+	def setOther(self, player):
+		self.other = player
 
 	def setDefaultTab(self, val):
 		self._deftab = val
@@ -344,7 +347,8 @@ class Backpack(pEvent):
 			if self.player is None: raise ValueError(self.player)
 			self._ui = wm.CreateWindow(self._uiClass,
 			                           (wm.screensize, pygame.transform.scale(_backpack_bk, wm.screensize),
-			                            self.player, self._deftab, self._static))
+			                            self.player, self._deftab, self._static, self.other))
+			self.other = None
 			self._static = False
 			self._activated = True
 			return True
