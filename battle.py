@@ -308,6 +308,7 @@ class _BattleMain(rgine.windows.windowBase):
 				elif msg == 1:
 					if not self._backpack.isRunning():
 						self._backpack.setPlayer(self._atk)
+						self._backpack.setOther(self._def)
 						self._backpack.setDefaultTab(2)
 						self._backpack.setStatic(True)
 						self._backpack.init(event, self._g_wm)
@@ -315,6 +316,7 @@ class _BattleMain(rgine.windows.windowBase):
 				elif msg == 2:
 					if not self._backpack.isRunning():
 						self._backpack.setPlayer(self._atk)
+						self._backpack.setOther(self._def)
 						self._backpack.setDefaultTab(1)
 						self._backpack.setStatic(True)
 						self._backpack.init(event, self._g_wm)
